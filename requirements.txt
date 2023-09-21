@@ -2,7 +2,7 @@ streamlit==1.26.0
 lumibot==2.8.3
 alpaca-trade-api==3.0.2
 aiohttp==3.8.2
-langchain==0.0.297
+langchain==0.0.298
 pandas==2.1.0
 QuantStats==0.0.62
 yfinance==0.2.28
