@@ -4,7 +4,7 @@ alpaca-trade-api==3.0.2
 aiohttp==3.8.5
 langchain==0.0.297
 pandas==2.1.0
-QuantStats==0.0.59
+QuantStats==0.0.62
 yfinance==0.2.28
 matplotlib==3.7.2
 requests==2.31.0
