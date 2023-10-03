@@ -1,6 +1,5 @@
-from config import ALPACAKEY, ALPACASECRETKEY, APCAAPIBASEURL
+from config import ALPACA_CONFIG
 from lumibot.brokers import Alpaca
-import alpaca as tradeapi
 from lumibot.backtesting import YahooDataBacktesting
 from lumibot.traders import Trader 
 import streamlit as st
@@ -123,7 +122,7 @@ def time():
                                         self.submit_order(order)
                     trade = False
                     if trade:
-                        broker = Alpaca(ALPACAKEY)
+                        broker = Alpaca(ALPACA_CONFIG)
                         strategy = BuyHold(broker=broker)
                         trader = Trader()
                         trader.add_strategy(strategy)
