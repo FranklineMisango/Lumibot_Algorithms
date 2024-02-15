@@ -1,4 +1,5 @@
 from config import ALPACA_CONFIG
+from config import ALPACAKEY, ALPACASECRETKEY, APCAAPIBASEURL
 from lumibot.brokers import Alpaca
 from lumibot.backtesting import YahooDataBacktesting
 from lumibot.traders import Trader 

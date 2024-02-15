@@ -19,3 +19,10 @@ secret_value_three = secret_client.get_secret(secret_name_three).value
 ALPACAKEY = secret_value_one
 ALPACASECRETKEY = secret_value_two
 APCAAPIBASEURL = secret_value_three
+
+# Use the secret in your config
+ALPACA_CONFIG = secret_value_one
+Openai_api_key = secret_value_three
+IEX_CLOUD_API_TOKEN = secret_value_two
+
+
