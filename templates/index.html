@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithmic Trading Framework</title>
+    <!-- Include necessary CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>🦜🔗 Algorithmic Trading Framework using Lumibots API</h1>
+    <div class="warning">
+        <p>This project is intended for users with an intermediate knowledge of Finance</p>
+    </div>
+    <div id="ticker-form">
+        <h2>Enter Stock Ticker</h2>
+        <form action="{{ url_for('add_ticker') }}" method="post">
+            <label for="ticker-input">Enter a stock ticker:</label>
+            <input type="text" id="ticker-input" name="ticker_input" required>
+            <label for="quantity-input">Enter the stock quantity:</label>
+            <input type="number" id="quantity-input" name="quantity_input" required>
+            <button type="submit">Add +</button>
+        </form>
+        <!-- Display current tickers and quantities here -->
+        {% if tickers %}
+            <h3>Current Tickers and Quantities</h3>
+            <ul>
+            {% for ticker, quantity in zip(tickers, quantities) %}
+                <li>{{ ticker }}: {{ quantity }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    <div id="backtesting-form">
+        <!-- Include backtesting form here -->
+        <h2>Backtesting Strategies</h2>
+        <!-- Form for backtesting strategies -->
+        <form action="{{ url_for('backtest') }}" method="post">
+            <!-- Include form elements -->
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
