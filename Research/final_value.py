@@ -5,7 +5,7 @@ import math
 from statistics import mean
 import numpy as np
 from scipy import stats
-from secrets_1 import IEX_CLOUD_API_TOKEN
+from config import IEX_CLOUD_API_TOKEN
 
 def main():
     st.title("Level III : Quantitative Value Investing Strategizer")

@@ -52,8 +52,6 @@ class Trend(Strategy):
             self.submit_order(order)
 
     
-
-
 if __name__ == "__main__":
     trade = False
     if trade:
