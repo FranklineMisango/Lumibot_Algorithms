@@ -6,13 +6,14 @@ from lumibot.strategies import Strategy
 from lumibot.traders import Trader
 import numpy as np
 import pandas as pd
-
+from algo import start_date
+from algo import end_date
 
 class Trend(Strategy):
 
     def initialize(self):
         signal = None
-        start = "2022-01-01"
+        start = start_date
 
         self.signal = signal
         self.start = start
@@ -54,6 +55,7 @@ class Trend(Strategy):
     
 if __name__ == "__main__":
     trade = False
+    #Reactivate after code rebase
     if trade:
         broker = Alpaca(ALPACA_CONFIG)
         strategy = Trend(broker=broker)
@@ -61,8 +63,8 @@ if __name__ == "__main__":
         bot.add_strategy(strategy)
         bot.run_all()
     else:
-        start = datetime(2022, 4, 15)
-        end = datetime(2023, 4, 15)
+        start = start_date
+        end = end_date
         Trend.backtest(
             YahooDataBacktesting,
             start,

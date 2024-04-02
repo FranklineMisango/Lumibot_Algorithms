@@ -3,17 +3,17 @@ from lumibot.brokers import Alpaca
 from lumibot.strategies import Strategy
 from lumibot.traders import Trader
 
+
 class SwingHigh(Strategy):
     data = {}  # Dictionary to store last price data for each symbol
     order_numbers = {}  # Dictionary to store order numbers for each symbol
     shares_per_ticker = {}  # Dictionary to specify the number of shares per ticker
 
-    def initialize(self):
-        self.symbols = ["AAPL", "BAC", "V", "GM", "KO", "KHC", "OXY", "CVX", "HPQ", "PARA", "UPS", "MCO", "AXP", "JNJ", "MA", "DVA", "AMZN"]  # Add other symbols as needed
-        self.shares_per_ticker = {"AAPL": 60, "BAC": 373, "V":48, "GM":299, "KO":190, "KHC":325, 
-                                  "OXY":195, "CVX":76, "HPQ":357, "PARA":733, "UPS":63, "MCO":32, "AXP":66, 
-                                  "JNJ":74, "MA" :29, "DVA" : 112, "AMZN" : 86}   # Specify the number of shares for each symbol
+    def initialize(self, ticker_input, quantities_input):
+        self.symbols = ticker_input# Add other symbols as needed
+        self.shares_per_ticker = {ticker_input: quantities_input}   # Specify the number of shares for each symbol
         self.sleeptime = "10S"
+    
     def on_trading_iteration(self):
         for symbol in self.symbols:
             if symbol not in self.data:
@@ -43,13 +43,5 @@ class SwingHigh(Strategy):
                     self.order_numbers[symbol] = 0
 
     def before_market_closes(self):
-        for symbol in self.symbols:
-            self.sell_all(symbol)
-
-
-if __name__ == "__main__":
-    broker = Alpaca(ALPACA_CONFIG)
-    strategy = SwingHigh(broker=broker)
-    trader = Trader()
-    trader.add_strategy(strategy)
-    trader.run_all()
+    for symbol in self.symbols:
+        self.sell_all(symbol)
