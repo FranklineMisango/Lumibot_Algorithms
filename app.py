@@ -1,26 +1,27 @@
 import streamlit as st
+from streamlit_ttyd import terminal
+import subprocess
 import time
 
-st.title("Trading Bot Progress Monitor")
+st.title("Frankline & Co. HFT Trading Bot Progress - Test")
 
-log_file = 'progress.log'
+# Start main.py and capture its output
+process = subprocess.Popen(['python', 'main.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-# Function to read the log file
-def read_log():
-    with open(log_file, 'r') as f:
-        return f.read()
+# Display the output of main.py in Streamlit
+st.text("Output from our Test HFT bot:")
+for line in iter(process.stdout.readline, ''):
+    st.text(line.strip())
 
-# Display the log file content
-log_content = read_log()
-log_lines = log_content.split('\n')
+# start the ttyd server and display the terminal on streamlit
+ttydprocess, port = terminal(cmd="top")
 
-# Display the log lines in Streamlit
-log_display = st.empty()
-log_display.text_area("Log Output", value="\n".join(log_lines), height=400)
+# info on ttyd port
+st.text(f"ttyd server is running on port : {port}")
 
-# Update the log display every 5 seconds
-while True:
-    time.sleep(5)
-    log_content = read_log()
-    log_lines = log_content.split('\n')
-    log_display.text_area("Log Output", value="\n".join(log_lines), height=400)
+# kill the ttyd server after a minute
+# time.sleep(60)
+#ttydprocess.kill()
+
+# Ensure the process is terminated
+#process.terminate()
