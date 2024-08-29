@@ -1,4 +1,3 @@
-from config import ALPACA_CONFIG
 from datetime import datetime, timedelta
 from lumibot.backtesting import YahooDataBacktesting
 from lumibot.brokers import Alpaca
@@ -6,8 +5,6 @@ from lumibot.strategies import Strategy
 from lumibot.traders import Trader
 import numpy as np
 import pandas as pd
-from algo import start_date
-from algo import end_date
 
 class Trend(Strategy):
 
