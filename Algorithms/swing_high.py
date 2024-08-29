@@ -1,4 +1,3 @@
-from config import ALPACA_CONFIG
 from lumibot.brokers import Alpaca
 from lumibot.strategies import Strategy
 from lumibot.traders import Trader

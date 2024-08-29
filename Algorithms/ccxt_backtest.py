@@ -3,7 +3,7 @@ from datetime import datetime
 from lumibot.entities import Asset, Order
 from lumibot.strategies import Strategy
 from lumibot.backtesting import CcxtBacktesting
-i
+import Dataframe as DataFrame
 
 class CcxtBacktestingExampleStrategy(Strategy):
     def initialize(self, asset:tuple[Asset,Asset] = None,

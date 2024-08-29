@@ -1,4 +1,3 @@
-import streamlit as st
 from datetime import datetime
 from lumibot.strategies import Strategy
 from lumibot.backtesting import YahooDataBacktesting

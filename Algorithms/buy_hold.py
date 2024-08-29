@@ -1,16 +1,10 @@
-from config import ALPACA_CONFIG
 from lumibot.brokers import Alpaca
 from lumibot.strategies import Strategy
 from lumibot.traders import Trader
-from algo import ticker_input
-from algo import quantities_input
-from algo import portfolio_size
-from algo import start_date
-from algo import end_date
 import yfinance as yf
 import datetime 
 from lumibot.backtesting import YahooDataBacktesting
-
+import os
 
 
 class BuyHold(Strategy):
