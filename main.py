@@ -221,9 +221,9 @@ def check_rets(current_stock):
 
 def mail_alert(mail_content, sleep_time):
     # The mail addresses and password
-    sender_address = 'sender_address'
-    sender_pass = 'sender_password'
-    receiver_address = 'receiver_address'
+    sender_address = EMAIL_ADDRESS
+    sender_pass = EMAIL_PASSWORD
+    receiver_address = 'franklinemisango@gmail.com'
 
     # Setup MIME
     message = MIMEMultipart()
