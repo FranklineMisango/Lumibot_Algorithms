@@ -3,6 +3,7 @@ import datetime
 from datetime import datetime as dt
 from pytz import timezone
 import time
+from dotenv import load_dotenv
 
 import alpaca_trade_api as alpaca
 import json
