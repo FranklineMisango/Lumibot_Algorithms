@@ -13,18 +13,26 @@ from email.mime.text import MIMEText
 
 from datetime import timedelta
 import os.path
+import glob
 
 # Load API key
 ALPACA_API_KEY = os.environ.get('ALPACAKEY')
 ALPACA_API_SECRET_KEY =  os.environ.get('ALPACASECRETKEY')
-api = alpaca.REST(ALPACA_API_KEY, ALPACA_API_SECRET_KEY, base_url='https://api.alpaca.markets', api_version = 'v2')
+api = alpaca.REST(ALPACA_API_KEY, ALPACA_API_SECRET_KEY, base_url='https://paper-api.alpaca.markets', api_version = 'v2')
 
-tickers = open('AUTH/Tickers.txt', 'r').read()
-tickers = tickers.upper().split()
+#load all tickers from the global folder
+ticker_files = glob.glob('Tickers/*')
+tickers = []
+for file in ticker_files:
+    with open(file, 'r') as f:
+        tickers.extend(f.read().upper().split())
+
 global TICKERS 
 TICKERS = tickers
 
-
+#smtp mail configuration
+EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 def get_minute_data(tickers):
     
