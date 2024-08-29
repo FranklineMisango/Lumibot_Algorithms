@@ -17,7 +17,7 @@ for line in iter(process.stdout.readline, ''):
 ttydprocess, port = terminal(cmd="top")
 
 # info on ttyd port
-st.text(f"ttyd server is running on port : {port}")
+st.text(f"ttyd server is running on port : {7681}")
 
 # kill the ttyd server after a minute
 # time.sleep(60)
