@@ -18,6 +18,9 @@ import glob
 import yfinance as yf
 
 # Load API key
+
+load_dotenv()
+
 ALPACA_API_KEY = os.environ.get('ALPACAKEY')
 ALPACA_API_SECRET_KEY =  os.environ.get('ALPACASECRETKEY')
 api = alpaca.REST(ALPACA_API_KEY, ALPACA_API_SECRET_KEY, base_url='https://paper-api.alpaca.markets', api_version = 'v2')
@@ -198,9 +201,9 @@ def check_rets(current_stock):
 
 def mail_alert(mail_content, sleep_time):
     # The mail addresses and password
-    sender_address = 'sender_address'
-    sender_pass = 'sender_password'
-    receiver_address = 'receiver_address'
+    sender_address = EMAIL_ADDRESS
+    sender_pass = EMAIL_PASSWORD
+    receiver_address = 'franklinemisango@gmail.com'
 
     # Setup MIME
     message = MIMEMultipart()
