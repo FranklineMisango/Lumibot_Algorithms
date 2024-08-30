@@ -109,7 +109,7 @@ def get_past30_data(tickers):
         
     for ticker in tickers:
         save_30_data(ticker)
-        
+
 def ROC(ask, timeframe):
         if timeframe == 30:
             rocs = (ask[ask.shape[0] - 1] - ask[0])/(ask[0])
@@ -338,6 +338,7 @@ def main():
                             time.sleep(3)
                 else:
                     if ((dt.now().astimezone(timezone('America/New_York')))).strftime('%H:%M:%S') < '10:00:00':
+                        print("The market is not open yet")
                         time_to_10 = int(str(dt.strptime('10:00:00', '%H:%M:%S') - dt.strptime(((dt.now().astimezone(timezone('America/New_York')))).strftime('%H:%M:%S'), '%H:%M:%S')).split(':')[1])*60 + int(str(dt.strptime('10:00:00', '%H:%M:%S') - dt.strptime(((dt.now().astimezone(timezone('America/New_York')))).strftime('%H:%M:%S'), '%H:%M:%S')).split(':')[2])
                         time.sleep(time_to_10 - 20)
 
@@ -356,7 +357,7 @@ def main():
                     df['First Stock'] = stock_to_buy
                     df.to_csv('FirstTrade.csv')
             else:
-                print("The market is not open yet")
+                print("Waiting for the market to open")
                 time.sleep(300)
                 if api.get_clock().is_open == True:
                     continue
