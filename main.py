@@ -15,6 +15,7 @@ from email.mime.text import MIMEText
 from datetime import timedelta
 import os.path
 import glob
+import yfinance as yf
 
 # Load API key
 ALPACA_API_KEY = os.environ.get('ALPACAKEY')
@@ -36,58 +37,37 @@ EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 def get_minute_data(tickers):
-    
     def save_min_data(ticker):
-        prices = api.get_trades(str(ticker), start = ((dt.now().astimezone(timezone('America/New_York'))) - timedelta(minutes=2)).isoformat(),
-                                        end = ((dt.now().astimezone(timezone('America/New_York')))).isoformat(), 
-                                        limit = 10000).df[['price']]
-        prices.index = pd.to_datetime(prices.index, format = '%Y-%m-%d').strftime('%Y-%m-%d %H:%M')
-        prices = prices[~prices.index.duplicated(keep='first')]
-
-        quotes = api.get_quotes(str(ticker), start = ((dt.now().astimezone(timezone('America/New_York'))) - timedelta(minutes=2)).isoformat(),
-                                        end = ((dt.now().astimezone(timezone('America/New_York')))).isoformat(), 
-                                        limit = 10000).df[['ask_price']]
-        quotes.index = pd.to_datetime(quotes.index, format = '%Y-%m-%d').strftime('%Y-%m-%d %H:%M')
-        quotes = quotes[~quotes.index.duplicated(keep='first')]
-
-        df = pd.merge(prices, quotes, how= 'inner', left_index=True, right_index= True)
-        df.to_csv('tick_data/{}.csv'.format(ticker))
+        end_time = dt.now().astimezone(timezone('America/New_York'))
+        start_time = end_time - timedelta(minutes=2)
+        
+        data = yf.download(ticker, start=start_time, end=end_time, interval='1m')
+        data.index = data.index.strftime('%Y-%m-%d %H:%M')
+        data = data[~data.index.duplicated(keep='first')]
+        
+        data.to_csv(f'tick_data/{ticker}.csv')
         
     for ticker in tickers:
         save_min_data(ticker)
 
 def get_past30_data(tickers):
-    
     def save_30_data(ticker):
-        prices_1 = api.get_trades(str(ticker), start = ((dt.now().astimezone(timezone('America/New_York'))) - timedelta(minutes=30)).isoformat(),
-                                        end = ((dt.now().astimezone(timezone('America/New_York'))) - timedelta(minutes=28, seconds = 30)).isoformat(), 
-                                        limit = 10000).df[['price']]
-        prices_2 = api.get_trades(str(ticker), start = ((dt.now().astimezone(timezone('America/New_York'))) - timedelta(minutes=1, seconds = 30)).isoformat(),
-                                        end = ((dt.now().astimezone(timezone('America/New_York')))).isoformat(), 
-                                        limit = 10000).df[['price']]
+        end_time = dt.now().astimezone(timezone('America/New_York'))
+        start_time_1 = end_time - timedelta(minutes=30)
+        end_time_1 = end_time - timedelta(minutes=28, seconds=30)
+        start_time_2 = end_time - timedelta(minutes=1, seconds=30)
         
-        prices_1.index = pd.to_datetime(prices_1.index, format = '%Y-%m-%d').strftime('%Y-%m-%d %H:%M')
-        prices_2.index = pd.to_datetime(prices_2.index, format = '%Y-%m-%d').strftime('%Y-%m-%d %H:%M')
+        data_1 = yf.download(ticker, start=start_time_1, end=end_time_1, interval='1m')
+        data_2 = yf.download(ticker, start=start_time_2, end=end_time, interval='1m')
         
-        prices = pd.concat([prices_1, prices_2])
-        prices = prices[~prices.index.duplicated(keep='first')]
-
-        quotes_1 = api.get_quotes(str(ticker), start = ((dt.now().astimezone(timezone('America/New_York'))) - timedelta(minutes=30)).isoformat(),
-                                        end = ((dt.now().astimezone(timezone('America/New_York'))) - timedelta(minutes=28, seconds = 30)).isoformat(), 
-                                        limit = 10000).df[['ask_price']]
-        quotes_2 = api.get_quotes(str(ticker), start = ((dt.now().astimezone(timezone('America/New_York'))) - timedelta(minutes=1, seconds = 30)).isoformat(),
-                                        end = ((dt.now().astimezone(timezone('America/New_York')))).isoformat(), 
-                                        limit = 10000).df[['ask_price']]
+        data_1.index = data_1.index.strftime('%Y-%m-%d %H:%M')
+        data_2.index = data_2.index.strftime('%Y-%m-%d %H:%M')
         
-        quotes_1.index = pd.to_datetime(quotes_1.index, format = '%Y-%m-%d').strftime('%Y-%m-%d %H:%M')
-        quotes_2.index = pd.to_datetime(quotes_2.index, format = '%Y-%m-%d').strftime('%Y-%m-%d %H:%M')
+        data = pd.concat([data_1, data_2])
+        data = data[~data.index.duplicated(keep='first')]
         
-        quotes = pd.concat([quotes_1, quotes_2])
-        quotes = quotes[~quotes.index.duplicated(keep='first')]
+        data.to_csv(f'tick_data/{ticker}.csv')
         
-        df = pd.merge(prices, quotes, how= 'inner', left_index=True, right_index= True)
-        df.to_csv('tick_data/{}.csv'.format(ticker))
-    
     for ticker in tickers:
         save_30_data(ticker)
 
