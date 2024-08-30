@@ -6,7 +6,7 @@ import time
 st.title("Frankline & Co. HFT Trading Bot Progress Monitoring - Test Run I")
 
 # Start main.py and capture its output
-process = subprocess.Popen(['python', 'main.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+process = subprocess.Popen(['python', 'simulate_main.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
 # Display the output of main.py in Streamlit
 st.success("Output on SPY Day run from our Test HFT bot:")
