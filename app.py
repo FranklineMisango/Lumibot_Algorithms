@@ -20,8 +20,8 @@ ttydprocess, port = terminal(cmd="top")
 st.text(f"ttyd server is running on port : {port}")
 
 # kill the ttyd server after a minute
-# time.sleep(60)
-#ttydprocess.kill()
+time.sleep(60)
+ttydprocess.kill()
 
 # Ensure the process is terminated
-#process.terminate()
+process.terminate()
