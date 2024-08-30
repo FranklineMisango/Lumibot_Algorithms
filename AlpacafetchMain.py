@@ -342,6 +342,7 @@ def main():
                     df['First Stock'] = stock_to_buy
                     df.to_csv('FirstTrade.csv')
             else:
+                print("The market is not open yet")
                 time.sleep(300)
                 if api.get_clock().is_open == True:
                     continue
