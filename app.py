@@ -7,9 +7,11 @@ st.title("Frankline & Co. HFT Trading Bot Progress Monitoring - Test Run I")
 
 # Start main.py and capture its output
 process = subprocess.Popen(['python', 'main.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+if process:
+    st.success("main.py started successfully")
 
 # Display the output of main.py in Streamlit
-st.success("Output on SPY Day run from our Test HFT bot:")
+st.write("Output on Test Day run from our HFT bot:")
 for line in iter(process.stdout.readline, ''):
     st.text(line.strip())
 
@@ -25,3 +27,4 @@ ttydprocess.kill()
 
 # Ensure the process is terminated
 process.terminate()
+process.wait()
