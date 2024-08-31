@@ -210,7 +210,7 @@ def mail_alert(mail_content, sleep_time):
     message = MIMEMultipart()
     message['From'] = 'Trading Bot'
     message['To'] = receiver_address
-    message['Subject'] = 'HFT Second-Bot'
+    message['Subject'] = 'Frankline & Co. HFT Day Trading Bot'
     
     # The body and the attachments for the mail
     message.attach(MIMEText(mail_content, 'plain'))
