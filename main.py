@@ -39,7 +39,6 @@ TICKERS = tickers
 EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
-'''
 def get_minute_data(tickers):
     def save_min_data(ticker):
         end_time = dt.now().astimezone(timezone('America/New_York'))
@@ -74,41 +73,7 @@ def get_past30_data(tickers):
         
     for ticker in tickers:
         save_30_data(ticker)
-'''
-def get_minute_data(tickers):
-    def save_min_data(ticker):
-        end_time = dt.now().astimezone(timezone('America/New_York')).replace(hour=16, minute=0, second=0, microsecond=0) - timedelta(days=1)
-        start_time = end_time.replace(hour=10, minute=0, second=0, microsecond=0)
-        
-        data = yf.download(ticker, start=start_time, end=end_time, interval='1m')
-        data.index = data.index.strftime('%Y-%m-%d %H:%M')
-        data = data[~data.index.duplicated(keep='first')]
-        
-        data.to_csv(f'tick_data/{ticker}.csv')
-        
-    for ticker in tickers:
-        save_min_data(ticker)
 
-def get_past30_data(tickers):
-    def save_30_data(ticker):
-        end_time = dt.now().astimezone(timezone('America/New_York')).replace(hour=16, minute=0, second=0, microsecond=0) - timedelta(days=1)
-        start_time_1 = end_time.replace(hour=10, minute=0, second=0, microsecond=0)
-        end_time_1 = start_time_1 + timedelta(minutes=1, seconds=30)
-        start_time_2 = end_time - timedelta(minutes=1, seconds=30)
-        
-        data_1 = yf.download(ticker, start=start_time_1, end=end_time_1, interval='1m')
-        data_2 = yf.download(ticker, start=start_time_2, end=end_time, interval='1m')
-        
-        data_1.index = data_1.index.strftime('%Y-%m-%d %H:%M')
-        data_2.index = data_2.index.strftime('%Y-%m-%d %H:%M')
-        
-        data = pd.concat([data_1, data_2])
-        data = data[~data.index.duplicated(keep='first')]
-        
-        data.to_csv(f'tick_data/{ticker}.csv')
-        
-    for ticker in tickers:
-        save_30_data(ticker)
 
 def ROC(ask, timeframe):
         if timeframe == 30:
