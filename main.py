@@ -241,6 +241,7 @@ def main():
 
         tickers = TICKERS
         try:
+            print(api.get_clock())
             if api.get_clock().is_open == True:
                 # check if we have made the first ever trade yet, if yes, timeframe = 1 min, else trade at 10:00 am
                 if os.path.isfile('FirstTrade.csv'):
@@ -303,7 +304,10 @@ def main():
                             time.sleep(3)
                 else:
                     if ((dt.now().astimezone(timezone('America/New_York')))).strftime('%H:%M:%S') < '09:30:00':
-                        print("The market is not open yet")
+                        current_time = dt.now().astimezone(timezone('America/New_York'))
+                        current_time = ny_time.strftime('%I:%M:%S %p')
+                        print(f"Current time in NY: {current_time}")
+                        print("The market is closed")
                         time_to_10 = int(str(dt.strptime('09:30:00', '%H:%M:%S') - dt.strptime(((dt.now().astimezone(timezone('America/New_York')))).strftime('%H:%M:%S'), '%H:%M:%S')).split(':')[1])*60 + int(str(dt.strptime('10:00:00', '%H:%M:%S') - dt.strptime(((dt.now().astimezone(timezone('America/New_York')))).strftime('%H:%M:%S'), '%H:%M:%S')).split(':')[2])
                         time.sleep(time_to_10 - 20)
 
@@ -322,6 +326,9 @@ def main():
                     df['First Stock'] = stock_to_buy
                     df.to_csv('FirstTrade.csv')
             else:
+                ny_time = dt.now().astimezone(timezone('America/New_York'))
+                current_time = ny_time.strftime('%I:%M:%S %p')
+                print(f"Current time in NY: {current_time}")
                 print("Waiting for the market to open")
                 time.sleep(300)
                 if api.get_clock().is_open == True:
