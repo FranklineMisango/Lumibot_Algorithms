@@ -25,17 +25,21 @@ ALPACA_API_KEY = os.environ.get('ALPACAKEY')
 ALPACA_API_SECRET_KEY =  os.environ.get('ALPACASECRETKEY')
 api = alpaca.REST(ALPACA_API_KEY, ALPACA_API_SECRET_KEY, base_url='https://paper-api.alpaca.markets', api_version = 'v2')
 
-#load all tickers from the global folder
-ticker_files = glob.glob('Tickers/*')
+# Load all tickers from the global folder
+ticker_files = glob.glob('Test_tickers/*')
 tickers = []
 for file in ticker_files:
     with open(file, 'r') as f:
-        tickers.extend(f.read().upper().split())
+        file_tickers = f.read().upper().split()
+        print(f"Tickers from {file}: {file_tickers}")  # Debug print
+        tickers.extend(file_tickers)
+
+print(f"All tickers: {tickers}")  # Debug print
 
 global TICKERS 
 TICKERS = tickers
 
-#smtp mail configuration
+# SMTP mail configuration
 EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
@@ -44,11 +48,16 @@ def get_minute_data(tickers):
         end_time = dt.now().astimezone(timezone('America/New_York'))
         start_time = end_time - timedelta(minutes=2)
         
-        data = yf.download(ticker, start=start_time, end=end_time, interval='1m')
-        data.index = data.index.strftime('%Y-%m-%d %H:%M')
-        data = data[~data.index.duplicated(keep='first')]
-        
-        data.to_csv(f'tick_data/{ticker}.csv')
+        try:
+            data = yf.download(ticker, start=start_time, end=end_time, interval='1m')
+            if data.empty:
+                print(f"No price data found for {ticker}")
+                return
+            data.index = data.index.strftime('%Y-%m-%d %H:%M')
+            data = data[~data.index.duplicated(keep='first')]
+            data.to_csv(f'tick_data/{ticker}.csv')
+        except Exception as e:
+            print(f"Failed to download data for {ticker}: {e}")
         
     for ticker in tickers:
         save_min_data(ticker)
@@ -60,16 +69,19 @@ def get_past30_data(tickers):
         end_time_1 = end_time - timedelta(minutes=28, seconds=30)
         start_time_2 = end_time - timedelta(minutes=1, seconds=30)
         
-        data_1 = yf.download(ticker, start=start_time_1, end=end_time_1, interval='1m')
-        data_2 = yf.download(ticker, start=start_time_2, end=end_time, interval='1m')
-        
-        data_1.index = data_1.index.strftime('%Y-%m-%d %H:%M')
-        data_2.index = data_2.index.strftime('%Y-%m-%d %H:%M')
-        
-        data = pd.concat([data_1, data_2])
-        data = data[~data.index.duplicated(keep='first')]
-        
-        data.to_csv(f'tick_data/{ticker}.csv')
+        try:
+            data_1 = yf.download(ticker, start=start_time_1, end=end_time_1, interval='1m')
+            data_2 = yf.download(ticker, start=start_time_2, end=end_time, interval='1m')
+            if data_1.empty or data_2.empty:
+                print(f"No price data found for {ticker}")
+                return
+            data_1.index = data_1.index.strftime('%Y-%m-%d %H:%M')
+            data_2.index = data_2.index.strftime('%Y-%m-%d %H:%M')
+            data = pd.concat([data_1, data_2])
+            data = data[~data.index.duplicated(keep='first')]
+            data.to_csv(f'tick_data/{ticker}.csv')
+        except Exception as e:
+            print(f"Failed to download data for {ticker}: {e}")
         
     for ticker in tickers:
         save_30_data(ticker)
@@ -88,7 +100,7 @@ def return_ROC_list(tickers, timeframe):
     for i in range(len(tickers)):
         df = pd.read_csv('tick_data/{}.csv'.format(tickers[i]))
         df.set_index('timestamp', inplace= True)
-        df.index = pd.to_datetime(df.index, format ='%Y-%m-%d').strftime('%Y-%m-%d %H:%M')
+        df.index = pd.to_datetime(df.index, format ='%Y-%m-%d %H:%M')
         ROC_tickers.append(ROC(df['ask_price'], timeframe)) # [-1] forlast value (latest)
     return ROC_tickers
 
@@ -108,7 +120,7 @@ def compare_ask_ltp(tickers, timeframe):
                 buy_stock_init = tickers[max_ROC_index]
                 df = pd.read_csv('tick_data/{}.csv'.format(buy_stock_init))
                 df.set_index('timestamp', inplace= True)
-                df.index = pd.to_datetime(df.index, format ='%Y-%m-%d').strftime('%Y-%m-%d %H:%M')
+                df.index = pd.to_datetime(df.index, format ='%Y-%m-%d %H:%M')
 
                 # list to keep track of number of ask_prices > price
                 buy_condition = []
@@ -281,31 +293,13 @@ def main():
                             pass
                         mail_content = buy(stock_to_buy)
                         mail_alert(mail_content, 5)
-                        continue
-
-                    else:
-                        
-                        num_stocks = len(api.list_positions())
-                        current_stocks = []
-                        mail_content_list = []
-                        
-                        for pos in range(num_stocks):
-                            current_stocks.append(api.list_positions()[pos].symbol)
-                        
-                        for stock in current_stocks:
-                            mail_content = check_rets(stock)
-                            mail_content_list.append(mail_content)
-                        
-                        if any(mail_content_list):
-                            for mail in mail_content_list:
-                                if mail != 0:
-                                    mail_alert(mail, 0)
-                        else:
-                            time.sleep(3)
+                        df = pd.DataFrame()
+                        df['First Stock'] = stock_to_buy
+                        df.to_csv('FirstTrade.csv')
                 else:
                     if ((dt.now().astimezone(timezone('America/New_York')))).strftime('%H:%M:%S') < '09:30:00':
                         current_time = dt.now().astimezone(timezone('America/New_York'))
-                        current_time = ny_time.strftime('%I:%M:%S %p')
+                        current_time = current_time.strftime('%I:%M:%S %p')
                         print(f"Current time in NY: {current_time}")
                         print("The market is closed")
                         time_to_10 = int(str(dt.strptime('09:30:00', '%H:%M:%S') - dt.strptime(((dt.now().astimezone(timezone('America/New_York')))).strftime('%H:%M:%S'), '%H:%M:%S')).split(':')[1])*60 + int(str(dt.strptime('10:00:00', '%H:%M:%S') - dt.strptime(((dt.now().astimezone(timezone('America/New_York')))).strftime('%H:%M:%S'), '%H:%M:%S')).split(':')[2])
