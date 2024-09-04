@@ -23,6 +23,7 @@ load_dotenv()
 
 ALPACA_API_KEY = os.environ.get('ALPACAKEY')
 ALPACA_API_SECRET_KEY =  os.environ.get('ALPACASECRETKEY')
+
 api = alpaca.REST(ALPACA_API_KEY, ALPACA_API_SECRET_KEY, base_url='https://paper-api.alpaca.markets', api_version = 'v2')
 
 #load all tickers from the global folder
@@ -39,6 +40,7 @@ TICKERS = tickers
 EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
+#Verify validity of 1 min data
 def get_minute_data(tickers):
     def save_min_data(ticker):
         end_time = dt.now().astimezone(timezone('America/New_York'))
@@ -139,6 +141,7 @@ def algo(tickers):
     # Calculates ROC
     # Checks for stock with highest ROC and if ask_price > price
     # Returns ticker to buy
+
     if os.path.isfile('FirstTrade.csv'):
         timeframe = 1
     else:
@@ -208,9 +211,9 @@ def mail_alert(mail_content, sleep_time):
 
     # Setup MIME
     message = MIMEMultipart()
-    message['From'] = 'Trading Bot'
+    message['From'] = 'Frankline & Co. HFT Day Trading Bot'
     message['To'] = receiver_address
-    message['Subject'] = 'Frankline & Co. HFT Day Trading Bot'
+    message['Subject'] = 'Frankline & Co. HFT Day Updates'
     
     # The body and the attachments for the mail
     message.attach(MIMEText(mail_content, 'plain'))
