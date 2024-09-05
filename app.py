@@ -9,6 +9,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 st.title("Frankline & Co. HFT Trading Bot Progress Monitoring - Test Run I")
+st.write("Simulating Q2 Portfolio from Warren Buffet's Berkshire Hathaway")
+st.image("https://www.berkshirehathaway.com/images/berkshire.jpg", use_column_width=True)
+
 
 try:
     # Start main.py and capture its output

@@ -27,7 +27,7 @@ ALPACA_API_SECRET_KEY =  os.environ.get('ALPACASECRETKEY')
 api = alpaca.REST(ALPACA_API_KEY, ALPACA_API_SECRET_KEY, base_url='https://paper-api.alpaca.markets', api_version = 'v2')
 
 # Load all tickers from the global folder
-ticker_files = glob.glob('Tickers/*')
+ticker_files = glob.glob('Test_tickers/*')
 tickers = []
 for file in ticker_files:
     with open(file, 'r') as f:
