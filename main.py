@@ -44,11 +44,31 @@ TICKERS = tickers
 EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
-#Verify validity of 1 min data
+# Verify validity of 1 min data
 def get_minute_data(tickers):
     def save_min_data(ticker):
         end_time = dt.now().astimezone(timezone('America/New_York'))
         start_time = end_time - timedelta(minutes=2)
+        
+        try:
+            data = yf.download(ticker, start=start_time, end=end_time, interval='1m')
+            if data.empty:
+                print(f"No price data found for {ticker}")
+                return
+            data.index = data.index.strftime('%Y-%m-%d %H:%M')
+            data = data[~data.index.duplicated(keep='first')]
+            data.to_csv(f'Test_tickers/{ticker}.csv')
+        except Exception as e:
+            print(f"Failed to download data for {ticker}: {e}")
+        
+    for ticker in tickers:
+        save_min_data(ticker)
+
+# Verify validity of 1 min data
+def get_past30_data(tickers):
+    def save_30_data(ticker):
+        end_time = dt.now().astimezone(timezone('America/New_York'))
+        start_time = end_time - timedelta(minutes=30)
         
         try:
             data = yf.download(ticker, start=start_time, end=end_time, interval='1m')
@@ -62,104 +82,147 @@ def get_minute_data(tickers):
             print(f"Failed to download data for {ticker}: {e}")
         
     for ticker in tickers:
-        save_min_data(ticker)
-
-def get_past30_data(tickers):
-    def save_30_data(ticker):
-        end_time = dt.now().astimezone(timezone('America/New_York'))
-        start_time_1 = end_time - timedelta(minutes=30)
-        end_time_1 = end_time - timedelta(minutes=28, seconds=30)
-        start_time_2 = end_time - timedelta(minutes=1, seconds=30)
-        
-        try:
-            data_1 = yf.download(ticker, start=start_time_1, end=end_time_1, interval='1m')
-            data_2 = yf.download(ticker, start=start_time_2, end=end_time, interval='1m')
-            if data_1.empty or data_2.empty:
-                print(f"No price data found for {ticker}")
-                return
-            data_1.index = data_1.index.strftime('%Y-%m-%d %H:%M')
-            data_2.index = data_2.index.strftime('%Y-%m-%d %H:%M')
-            data = pd.concat([data_1, data_2])
-            data = data[~data.index.duplicated(keep='first')]
-            data.to_csv(f'tick_data/{ticker}.csv')
-        except Exception as e:
-            print(f"Failed to download data for {ticker}: {e}")
-        
-    for ticker in tickers:
         save_30_data(ticker)
 
 
-def ROC(ask, timeframe):
-        if timeframe == 30:
-            rocs = (ask[ask.shape[0] - 1] - ask[0])/(ask[0])
-        else:
-            rocs = (ask[ask.shape[0] - 1] - ask[ask.shape[0] -2])/(ask[ask.shape[0] - 2])
-        return rocs*1000
+def ROC(close, timeframe):
+    if timeframe == 30:
+        rocs = (close.iloc[-1] - close.iloc[0]) / close.iloc[0]
+    else:
+        rocs = (close.iloc[-1] - close.iloc[-2]) / close.iloc[-2]
+    return rocs * 1000
 
 # Returns a list of most recent ROCs for all tickers
-def return_ROC_list(tickers, timeframe):
+def return_ROC_list(tickers):
     ROC_tickers = []
     for i in range(len(tickers)):
         df = pd.read_csv('tick_data/{}.csv'.format(tickers[i]))
-        df.set_index('timestamp', inplace= True)
-        df.index = pd.to_datetime(df.index, format ='%Y-%m-%d %H:%M')
-        ROC_tickers.append(ROC(df['ask_price'], timeframe)) # [-1] forlast value (latest)
+        df.set_index('Datetime', inplace=True)
+        df.index = pd.to_datetime(df.index, format='%Y-%m-%d %H:%M')
+        timeframe = (df.index[-1] - df.index[0]).seconds // 60  # Calculate timeframe in minutes
+        ROC_tickers.append(ROC(df['Close'], timeframe))  # Use 'Close' price for ROC calculation
     return ROC_tickers
 
-# compared ASK vs LTP
-def compare_ask_ltp(tickers, timeframe):
+def compare_close_ltp(tickers):
+    if len(tickers) != 0:
+        buy_stock = ''
+        ROCs = return_ROC_list(tickers)
+        ROCs = [roc for roc in ROCs if roc is not None]  # Filter out None values
+        if not ROCs:
+            return 0
+        max_ROC = max(ROCs)
+
+        if max_ROC <= 0:
+            return 0
+        max_ROC_index = ROCs.index(max_ROC)
+        buy_stock = tickers[max_ROC_index]
+
+        df = pd.read_csv('tick_data/{}.csv'.format(buy_stock))
+        df.set_index('Datetime', inplace=True)
+        df.index = pd.to_datetime(df.index, format='%Y-%m-%d %H:%M')
+
+        if df['Close'].iloc[-1] > df['Close'].iloc[-2]:
+            return buy_stock
+        else:
+            tickers.pop(max_ROC_index)
+            return compare_close_ltp(tickers)
+    return -1
+
+def stock_to_buy(tickers):
+    return compare_close_ltp(tickers)
+
+def execute_trade(ticker):
+    # Placeholder for trade execution logic
+    print(f"Placing buy order for {ticker}")
+
+def buy(stock_to_buy: str):
+    cashBalance = api.get_account().cash
+    price_stock = api.get_latest_trade(str(stock_to_buy)).price
+    targetPositionSize = ((float(cashBalance)) / (price_stock))  # Calculates required position size
+    api.submit_order(str(stock_to_buy), targetPositionSize, "buy", "market", "day")  # Market order to open position
+
+    mail_content = '''ALERT
     
-        if len(tickers) != 0:
-            buy_stock = ''
-            ROCs = return_ROC_list(tickers, timeframe)
-            max_ROC = max(ROCs)
+    BUY Order Placed for {}: {} Shares at ${}'''.format(stock_to_buy, targetPositionSize, price_stock)
+    
+    if os.path.isfile('Orders.csv'):
+        df = pd.read_csv('Orders.csv')
+        df.drop(columns='Unnamed: 0', inplace=True)
+        df.loc[len(df.index)] = [((dt.now()).astimezone(timezone('America/New_York'))).strftime("%Y-%m-%d %H:%M:%S"), stock_to_buy, 'buy',
+                                 price_stock, targetPositionSize, targetPositionSize * price_stock, api.get_account().cash] 
+    else:    
+        df = pd.DataFrame()
+        df[['Time', 'Ticker', 'Type', 'Price', 'Quantity', 'Total', 'Acc Balance']] = ''
+        df.loc[len(df.index)] = [((dt.now()).astimezone(timezone('America/New_York'))).strftime("%Y-%m-%d %H:%M:%S"), stock_to_buy, 'buy',
+                                 price_stock, targetPositionSize, targetPositionSize * price_stock, api.get_account().cash] 
+    df.to_csv('Orders.csv')
+    return mail_content
 
-            if max_ROC <= 0:
-                return 0
-            max_ROC_index = ROCs.index(max_ROC)
+def sell(current_stock):
+    # sells current_stock
+    quantity = float(api.get_position(str(current_stock)).qty)    
+    sell_price = api.get_latest_trade(str(current_stock)).price
+    api.cancel_all_orders()  # cancels all pending (to be filled) orders 
+    api.close_position(str(current_stock))  # sells current stock
+    
+    mail_content = '''ALERT
+    
+    SELL Order Placed for {}: {} Shares at ${}'''.format(current_stock, quantity, sell_price)
+    
+    if os.path.isfile('Orders.csv'):
+        df = pd.read_csv('Orders.csv')
+        df.drop(columns='Unnamed: 0', inplace=True)
+        df.loc[len(df.index)] = [((dt.now()).astimezone(timezone('America/New_York'))).strftime("%Y-%m-%d %H:%M:%S"), current_stock, 'sell',
+                                 sell_price, quantity, quantity * sell_price, api.get_account().cash] 
+    else:    
+        df = pd.DataFrame()
+        df[['Time', 'Ticker', 'Type', 'Price', 'Quantity', 'Total', 'Acc Balance']] = ''
+        df.loc[len(df.index)] = [((dt.now()).astimezone(timezone('America/New_York'))).strftime("%Y-%m-%d %H:%M:%S"), current_stock, 'sell',
+                                 sell_price, quantity, quantity * sell_price, api.get_account().cash] 
+    df.to_csv('Orders.csv')
+    return mail_content
 
-            for i in range(len(tickers)):
-                buy_stock_init = tickers[max_ROC_index]
-                df = pd.read_csv('tick_data/{}.csv'.format(buy_stock_init))
-                df.set_index('timestamp', inplace= True)
-                df.index = pd.to_datetime(df.index, format ='%Y-%m-%d %H:%M')
+def check_rets(current_stock):
+    # checks returns for stock in portfolio (api.get_positions()[0].symbol)
+    returns = float(api.get_position(str(current_stock)).unrealized_plpc) * 100
+    if returns >= 2:
+        mail_content = sell(current_stock)
+    else: 
+        mail_content = 0              
+    return mail_content
 
-                # list to keep track of number of ask_prices > price
-                buy_condition = []
-                ask_col = df.columns.get_loc('ask_price')
-                price_col = df.columns.get_loc('price')
-                for i in range(df.shape[0] - 2, df.shape[0]):
-                    buy_condition.append(df.iloc[i, ask_col] > df.iloc[i,price_col])
+def mail_alert(mail_content, sleep_time):
+    # The mail addresses and password
+    sender_address = EMAIL_ADDRESS
+    sender_pass = EMAIL_PASSWORD
+    receiver_address = 'franklinemisango@gmail.com'
 
-                if buy_condition[-1] == True:
-                    buy_stock = buy_stock_init
-                    return buy_stock
-                else:
-                    tickers.pop(max_ROC_index)
-                    ROCs.pop(max_ROC_index)
-                    if(len(tickers)==0):
-                        return -1
-                    max_ROC = max(ROCs)
-                    max_ROC_index =  ROCs.index(max_ROC)
-        else: tickers = TICKERS
+    # Setup MIME
+    message = MIMEMultipart()
+    message['From'] = 'Frankline & Co. HFT Day Trading Bot'
+    message['To'] = receiver_address
+    message['Subject'] = 'Frankline & Co. HFT Day Updates'
+    
+    # The body and the attachments for the mail
+    message.attach(MIMEText(mail_content, 'plain'))
 
-# returns which stock to buy
-def stock_to_buy(tickers, timeframe):
-        entry_buy = compare_ask_ltp(tickers, timeframe)
-        return entry_buy
+    # Create SMTP session for sending the mail
+    session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
+    session.starttls()  # enable security
+
+    # login with mail_id and password
+    session.login(sender_address, sender_pass)
+    text = message.as_string()
+    session.sendmail(sender_address, receiver_address, text)
+    session.quit()
+    time.sleep(sleep_time)
 
 def algo(tickers):
-
-    # Calculates ROC
-    # Checks for stock with highest ROC and if ask_price > price
-    # Returns ticker to buy
-
-    if os.path.isfile('FirstTrade.csv'):
-        timeframe = 1
+    ticker_to_buy = stock_to_buy(tickers)
+    if ticker_to_buy and ticker_to_buy != -1:
+        buy(ticker_to_buy)
     else:
-        timeframe = 30
-    stock = stock_to_buy(tickers, timeframe)
-    return stock
+        print("No suitable stock to buy")
 
 
 def buy(stock_to_buy: str):
