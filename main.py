@@ -57,7 +57,7 @@ def get_minute_data(tickers):
                 return
             data.index = data.index.strftime('%Y-%m-%d %H:%M')
             data = data[~data.index.duplicated(keep='first')]
-            data.to_csv(f'Test_tickers/{ticker}.csv')
+            data.to_csv(f'tick_data/{ticker}.csv')
         except Exception as e:
             print(f"Failed to download data for {ticker}: {e}")
         
