@@ -10,12 +10,11 @@ logger = logging.getLogger(__name__)
 
 st.title("Frankline & Co. HFT Trading Bot Progress Monitoring - Test Run I")
 st.write("Simulating Q2 Portfolio from Warren Buffet's Berkshire Hathaway")
-st.image("image/Warren-Buffett-Stock-Holdings.png", use_column_width=True)
-
+st.image("https://www.berkshirehathaway.com/images/berkshire.jpg", use_column_width=True)
 
 try:
     # Start main.py and capture its output
-    process = subprocess.Popen(['python', 'main.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    process = subprocess.Popen(['python', 'main.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
     if process:
         st.success("main.py started successfully")
         logger.info("main.py started successfully")
@@ -26,8 +25,10 @@ except Exception as e:
 # Display the output of main.py in Streamlit
 st.write("Output on Test Day run from our HFT bot:")
 try:
+    output_placeholder = st.empty()
     for line in iter(process.stdout.readline, ''):
-        st.text(line.strip())
+        output_placeholder.text(line.strip())
+        logger.info(line.strip())
 except Exception as e:
     st.error(f"Error reading output from main.py: {e}")
     logger.error(f"Error reading output from main.py: {e}")
