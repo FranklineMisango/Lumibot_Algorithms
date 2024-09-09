@@ -3,6 +3,7 @@ from datetime import datetime
 from lumibot.entities import Asset, Order
 from lumibot.strategies import Strategy
 from lumibot.backtesting import CcxtBacktesting
+from pandas import DataFrame
 
 class CcxtBacktestingExampleStrategy(Strategy):
     def initialize(self, asset:tuple[Asset,Asset] = None,
@@ -74,7 +75,7 @@ class CcxtBacktestingExampleStrategy(Strategy):
             self.log_message(f"Last sell trade was at {current_dt}")
 
 base_symbol = "ETH" # TODO-Adjust for either SPY/ETH for crypto
-quote_symbol = input("ticker")
+quote_symbol = input("Ticker : ")
 start_date = datetime(2023,2,11)
 end_date = datetime(2024,2,12)
 asset = (Asset(symbol=base_symbol, asset_type="crypto"),
