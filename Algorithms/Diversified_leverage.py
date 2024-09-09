@@ -2,8 +2,24 @@ from datetime import datetime
 from lumibot.entities import Asset, Order
 from lumibot.strategies import Strategy
 from lumibot.backtesting import CcxtBacktesting
-from lumibot.backtesting import YahooDataBacktesting #TODO - Move to strategies
+from lumibot.backtesting import YahooDataBacktesting 
 from lumibot.traders import Trader
+from lumibot.entities import TradingFee
+import alpaca_trade_api as alpaca
+import os
+from ccxt.base.types import TradingFees
+
+#Environment variables 
+from dotenv import load_dotenv
+load_dotenv
+
+API_KEY_ALPACA = os.environ.get("API_KEY_ALPACA")
+APCA_API_KEY_ID=os.environ.get("APCA_API_KEY_ID")
+SECRET_KEY_ALPACA =os.environ.get("SECRET_KEY_ALPACA")
+BASE_URL = os.environ.get("BASE_URL")
+
+ALPACA_CONFIG = alpaca.REST(APCA_API_KEY_ID, SECRET_KEY_ALPACA, base_url= BASE_URL, api_version = 'v2')
+BASE_URL = os.environ.get("BASE_URL")
 
 class DiversifiedLeverage(Strategy):
     # =====Overloading lifecycle methods=============
@@ -118,7 +134,7 @@ if __name__ == "__main__":
         ####
 
         trader = Trader()
-        broker = Alpaca(ALPACA_CONFIG) #Work on the alpaca config
+        broker = alpaca(ALPACA_CONFIG) #Work on the alpaca config
         strategy = DiversifiedLeverage(broker=broker)
         trader.add_strategy(strategy)
         trader.run_all()
@@ -129,8 +145,8 @@ if __name__ == "__main__":
         ####
 
         # Choose the time from and to which you want to backtest
-        backtesting_start = datetime(2010, 6, 1)
-        backtesting_end = datetime(2023, 7, 31)
+        backtesting_start = datetime(2020, 1, 1)
+        backtesting_end = datetime(2024,8, 31)
 
         # 0.01% trading/slippage fee
         trading_fee = TradingFee(percent_fee=0.005)
