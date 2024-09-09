@@ -116,7 +116,7 @@ class Momentum(Strategy):
 
 # TODO - Figure the datasource error and correct it
 if __name__ == "__main__":
-    is_live = False
+    is_live = True
 
     if is_live:
         trader = Trader()
