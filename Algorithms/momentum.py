@@ -12,9 +12,9 @@ load_dotenv()
 
 # Populate the ALPACA_CONFIG dictionary
 ALPACA_CONFIG = {
-    'API_KEY': os.getenv('ALPACA_API_KEY'),
-    'API_SECRET': os.getenv('ALPACA_API_SECRET'),
-    'BASE_URL': os.getenv('ALPACA_BASE_URL', 'https://paper-api.alpaca.markets')
+    'API_KEY': os.environ.get('APCA_API_KEY_ID'),
+    'API_SECRET': os.environ.get('APCA_API_SECRET_KEY'),
+    'BASE_URL': os.environ.get('BASE_URL')
 }
 
 # Check if the API_KEY is loaded correctly
