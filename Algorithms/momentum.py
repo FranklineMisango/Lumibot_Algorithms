@@ -8,7 +8,7 @@ import alpaca_trade_api as alpaca
 
 #Environment variables 
 from dotenv import load_dotenv
-load_dotenv
+load_dotenv()
 
 # Populate the ALPACA_CONFIG dictionary
 ALPACA_CONFIG = {
