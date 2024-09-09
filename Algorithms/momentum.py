@@ -10,13 +10,16 @@ import alpaca_trade_api as alpaca
 from dotenv import load_dotenv
 load_dotenv
 
-#Alpaca configuration and API key provision
-API_KEY_ALPACA = os.environ.get("API_KEY_ALPACA")
-APCA_API_KEY_ID=os.environ.get("APCA_API_KEY_ID")
-SECRET_KEY_ALPACA =os.environ.get("SECRET_KEY_ALPACA")
-BASE_URL = os.environ.get("BASE_URL")
-ALPACA_CONFIG = alpaca.REST(APCA_API_KEY_ID, SECRET_KEY_ALPACA, base_url= BASE_URL, api_version = 'v2')
-BASE_URL = os.environ.get("BASE_URL")
+# Populate the ALPACA_CONFIG dictionary
+ALPACA_CONFIG = {
+    'API_KEY': os.getenv('ALPACA_API_KEY'),
+    'API_SECRET': os.getenv('ALPACA_API_SECRET'),
+    'BASE_URL': os.getenv('ALPACA_BASE_URL', 'https://paper-api.alpaca.markets')
+}
+
+# Check if the API_KEY is loaded correctly
+if not ALPACA_CONFIG['API_KEY']:
+    raise ValueError("API_KEY not found in config")
 
 
 class Momentum(Strategy):
@@ -121,6 +124,7 @@ if __name__ == "__main__":
     if is_live:
         trader = Trader()
         broker = Alpaca(ALPACA_CONFIG)
+    
     else:
         backtesting_start = datetime(2024, 8, 1)
         backtesting_end = datetime(2023, 8, 31)
