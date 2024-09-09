@@ -5,6 +5,8 @@ from lumibot.brokers import Alpaca
 from lumibot.traders import Trader
 import os
 import alpaca_trade_api as alpaca
+import logging
+import asyncio
 
 #Environment variables 
 from dotenv import load_dotenv
@@ -20,6 +22,11 @@ ALPACA_CONFIG = {
 # Check if the API_KEY is loaded correctly
 if not ALPACA_CONFIG['API_KEY']:
     raise ValueError("API_KEY not found in config")
+
+
+# Logging configuration
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class Momentum(Strategy):
@@ -118,13 +125,18 @@ class Momentum(Strategy):
 
 
 # TODO - Figure the datasource error and correct it
-if __name__ == "__main__":
+async def main():
     is_live = True
 
     if is_live:
         trader = Trader()
         broker = Alpaca(ALPACA_CONFIG)
-    
+        logger.info("Connecting to Alpaca API...")
+        try:
+            await asyncio.wait_for(broker.connect(), timeout=10)
+            logger.info("Connected to Alpaca API.")
+        except asyncio.TimeoutError:
+            logger.error("Connection to Alpaca API timed out.")
     else:
         backtesting_start = datetime(2024, 8, 1)
         backtesting_end = datetime(2023, 8, 31)
@@ -137,3 +149,7 @@ if __name__ == "__main__":
             initial_cash=100000,
         )
         print(results)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
