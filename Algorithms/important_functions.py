@@ -1,7 +1,16 @@
-from datetime import datetime
-from lumibot.entities import Asset, Order
-from lumibot.strategies import Strategy
+import datetime
+
+from lumibot.brokers import Ccxt
+from lumibot.entities import Asset
+from lumibot.strategies.strategy import Strategy
 from lumibot.traders import Trader
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+MY_KRAKEN_API_KEY = os.environ.get("KRAKEN_API_KEY")
+MY_KRAKEN_SECRET_KEY = os.environ.get("KRAKEN_API_SECRET_KEY")
+                                
 
 class ImportantFunctions(Strategy):
     def initialize(self):
@@ -122,6 +131,19 @@ class ImportantFunctions(Strategy):
 if __name__ == "__main__":
     trader = Trader()
 
+    KRAKEN_CONFIG = {
+        "exchange_id": "kraken",
+        "apiKey": MY_KRAKEN_API_KEY,
+        "secret": MY_KRAKEN_SECRET_KEY,
+        "margin": True,
+        "sandbox": False,
+    }
+
+    # Check that the user has filled in the API keys
+    if KRAKEN_CONFIG["apiKey"] == "YOUR_API_KEY":
+        raise Exception("Please fill in your API key")
+    if KRAKEN_CONFIG["secret"] == "YOUR_SECRET_KEY":
+        raise Exception("Please fill in your secret key")
 
     broker = Ccxt(KRAKEN_CONFIG)
 
