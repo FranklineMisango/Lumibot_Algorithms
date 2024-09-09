@@ -2,9 +2,25 @@ from datetime import datetime
 from lumibot.entities import Asset, Order
 from lumibot.strategies import Strategy
 from lumibot.traders import Trader
+import os
+import alpaca_trade_api as alpaca
+
+#Environment variables 
+from dotenv import load_dotenv
+load_dotenv()
 
 
+POLYGON_API_KEY=os.environ.get('POLYGON_API_KEY')
 
+
+API_KEY_ALPACA = os.environ.get("API_KEY_ALPACA")
+APCA_API_KEY_ID=os.environ.get("APCA_API_KEY_ID")
+SECRET_KEY_ALPACA =os.environ.get("SECRET_KEY_ALPACA")
+
+
+BASE_URL = os.environ.get("BASE_URL")
+ALPACA_CONFIG = alpaca.REST(APCA_API_KEY_ID, SECRET_KEY_ALPACA, base_url= BASE_URL, api_version = 'v2')
+BASE_URL = os.environ.get("BASE_URL")
 
 class OptionsHoldToExpiry(Strategy):
     parameters = {
@@ -67,7 +83,8 @@ if __name__ == "__main__":
 
         trader = Trader()
 
-        broker = InteractiveBrokers(INTERACTIVE_BROKERS_CONFIG) #Add interactive brokers config
+        #TODO - add all other brokers
+        broker = alpaca(ALPACA_CONFIG)
         strategy = OptionsHoldToExpiry(broker=broker)
 
         trader.add_strategy(strategy)
@@ -85,6 +102,6 @@ if __name__ == "__main__":
             backtesting_start,
             backtesting_end,
             benchmark_asset="SPY",
-            polygon_api_key="YOUR_POLYGON_API_KEY_HERE",  # Add your polygon API key here
-            polygon_has_paid_subscription=False,
+            polygon_api_key=POLYGON_API_KEY,  # Add your polygon API key here
         )
+        
