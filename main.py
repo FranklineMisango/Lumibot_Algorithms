@@ -27,7 +27,7 @@ ALPACA_API_SECRET_KEY =  os.environ.get('ALPACASECRETKEY')
 api = alpaca.REST(ALPACA_API_KEY, ALPACA_API_SECRET_KEY, base_url='https://paper-api.alpaca.markets', api_version = 'v2')
 
 # Load all tickers from the global folder
-ticker_files = glob.glob('Test_tickers/*')
+ticker_files = glob.glob('Highest_52_volatile_tickers/*')
 tickers = []
 for file in ticker_files:
     with open(file, 'r') as f:
@@ -85,6 +85,7 @@ def get_past30_data(tickers):
         save_30_data(ticker)
 
 
+# Calculate Rate of Change (ROC) for a given timeframe
 def ROC(close, timeframe):
     if timeframe == 30:
         rocs = (close.iloc[-1] - close.iloc[0]) / close.iloc[0]
