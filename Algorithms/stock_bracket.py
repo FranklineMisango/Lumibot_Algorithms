@@ -1,13 +1,23 @@
 from datetime import datetime
+from lumibot.strategies import Strategy
+import os
+import alpaca_trade_api as alpaca
 
+
+#Alpaca configuration and API key provision
+API_KEY_ALPACA = os.environ.get("API_KEY_ALPACA")
+APCA_API_KEY_ID=os.environ.get("APCA_API_KEY_ID")
+SECRET_KEY_ALPACA =os.environ.get("SECRET_KEY_ALPACA")
+BASE_URL = os.environ.get("BASE_URL")
+ALPACA_CONFIG = alpaca.REST(APCA_API_KEY_ID, SECRET_KEY_ALPACA, base_url= BASE_URL, api_version = 'v2')
 
 
 class StockBracket(Strategy):
         parameters = {
-            "buy_symbol": "SPY",
-            "take_profit_price": 405,
-            "stop_loss_price": 395,
-            "quantity": 10,
+            "buy_symbol": "NVDA",
+            "take_profit_price":800,
+            "stop_loss_price": 10,
+            "quantity": 100,
         }
 
         # =====Overloading lifecycle methods=============
@@ -67,8 +77,8 @@ if __name__ == "__main__":
         from lumibot.backtesting import YahooDataBacktesting
 
         # Backtest this strategy
-        backtesting_start = datetime(2023, 3, 3)
-        backtesting_end = datetime(2023, 3, 10)
+        backtesting_start = datetime(2024, 1, 1)
+        backtesting_end = datetime(2024, 8, 31)
 
         results = StockBracket.backtest(
             YahooDataBacktesting,
