@@ -10,16 +10,21 @@ import alpaca_trade_api as alpaca
 from dotenv import load_dotenv
 load_dotenv
 
+#Alpaca configuration and API key provision
 API_KEY_ALPACA = os.environ.get("API_KEY_ALPACA")
 APCA_API_KEY_ID=os.environ.get("APCA_API_KEY_ID")
 SECRET_KEY_ALPACA =os.environ.get("SECRET_KEY_ALPACA")
 BASE_URL = os.environ.get("BASE_URL")
-
 ALPACA_CONFIG = alpaca.REST(APCA_API_KEY_ID, SECRET_KEY_ALPACA, base_url= BASE_URL, api_version = 'v2')
 BASE_URL = os.environ.get("BASE_URL")
 
+
 class Momentum(Strategy):
-    def initialize(self, symbols=None):
+    def initialize(self, symbols=[
+            "ALLY", "AMZN", "AXP", "AON", "AAPL", "BATRK", "BAC", "COF", "CHTR", "CVX", "C", "CB", "CBKO", "DVA", "DEO",
+            "FND", "HEI.A", "JEF", "KHC", "KR", "LEN.B", "LILA", "LILAK", "LSXMA", "LSXMK", "LLYVA", "LLYVK", "FWONK",
+            "LPX", "MA", "MCO", "NU", "NVR", "OXY", "SIRI", "SPY", "TMUS", "ULTA", "VOO", "VRSN", "SNOW", "VIAC"
+        ]):
         self.period = 2
         self.counter = 0
         self.sleeptime = 0
@@ -109,6 +114,7 @@ class Momentum(Strategy):
         return momentums
 
 
+# TODO - Figure the datasource error and correct it
 if __name__ == "__main__":
     is_live = False
 
