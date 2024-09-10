@@ -5,13 +5,24 @@ from lumibot.strategies import Strategy
 from lumibot.traders import Trader
 import numpy as np
 import pandas as pd
+import os
+
+
+from dotenv import load_dotenv
+load_dotenv()
+from datetime import datetime
+
+# Populate the ALPACA_CONFIG dictionary
+ALPACA_CONFIG = {
+    'API_KEY': os.environ.get('APCA_API_KEY_ID'),
+    'API_SECRET': os.environ.get('APCA_API_SECRET_KEY'),
+    'BASE_URL': os.environ.get('BASE_URL')
+}
 
 class Trend(Strategy):
 
     def initialize(self):
         signal = None
-        start = start_date
-
         self.signal = signal
         self.start = start
         self.sleeptime = "1D"
@@ -60,8 +71,8 @@ if __name__ == "__main__":
         bot.add_strategy(strategy)
         bot.run_all()
     else:
-        start = start_date
-        end = end_date
+        start = datetime(2024, 8, 1)
+        end = datetime(2024, 8, 31)
         Trend.backtest(
             YahooDataBacktesting,
             start,
