@@ -6,14 +6,18 @@
 
 ## 📖 Introduction
 
-This project is a high-frequency trading (HFT) bot that uses a Rate of Change (ROC) strategy to identify and execute trades on various stock tickers. The bot reads historical stock data, calculates the ROC, and places buy or sell orders based on predefined conditions.
+This project is a high-frequency trading (HFT) bot that uses various strategies, user predefined,  to identify and execute trades on various stock tickers. The bot reads historical stock data, executes the strategy, and places buy or sell orders based on predefined conditions.
 
 ## 🚀 Features
 
-- **Dynamic ROC Calculation**: Calculates the ROC based on the `Close` price and dynamically determined timeframe.
-- **Automated Trading**: Automatically places buy and sell orders based on the calculated ROC.
+- **Default Strategy : Dynamic ROC Calculation**: Calculates the ROC based on the `Close` price and dynamically determined timeframe.
+- **Automated Trading**: Automatically places buy and sell orders based on the strategy. Turns on at 0930 Hrs NY Time and Sleeps at 1600 hrs NY Time. 
 - **Email Alerts**: Sends email notifications for trade executions.
 - **Order Logging**: Logs all executed orders to a CSV file for record-keeping.
+
+## 🔄 Updates and Project Goals
+
+I am currently integrating all functions within the [`Algorithms`] folder to be used seamlessly within the main trading bot and would mostly rely on Langchain Agents and Langsmith models. This will allow for a more modular and flexible approach to trading strategies. Users can now choose to run any algorithm manually if they prefer, without relying solely on the ROC strategy. This enhancement aims to provide greater flexibility and customization for different trading needs.
 
 ## 🛠️ Installation
 
@@ -38,18 +42,22 @@ This project is a high-frequency trading (HFT) bot that uses a Rate of Change (R
     ```bash
     export EMAIL_ADDRESS="your_email@example.com"
     export EMAIL_PASSWORD="your_email_password"
+    export ALPACA_API_KEY = "your_apca_api_key_id"
+    export ALPACA_API_SECRET_KEY =  "your_apca_secret_key"
+
     ```
 
 ## 📈 Usage
 
 1. **Prepare your tick data**:
-    - Ensure you have CSV files for each ticker in the `tick_data` directory. Each file should follow the structure:
+    - Ensure the program is downloadinf files for each ticker in the `tick_data` directory. Each file should follow the structure:
       ```csv
       Datetime,Open,High,Low,Close,Adj Close,Volume
       2024-09-05 10:32,54.209999084472656,54.209999084472656,54.18000030517578,54.209999084472656,54.209999084472656,0
+    - You can also run `python run Alpacafetchmain.py` and fetch data from alpaca real-time(requires subscription) but can be used for historical data
       ```
 
-2. **Run the algorithm**:
+2. **Run the algorithm (You can tweak and add more strategies inside algorithms/defined Technical Indicators)**:
     ```bash
     python main.py
     ```
