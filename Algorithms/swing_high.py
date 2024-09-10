@@ -6,6 +6,7 @@ from lumibot.backtesting import YahooDataBacktesting
 
 from dotenv import load_dotenv
 load_dotenv()
+
 from datetime import datetime
 
 # Populate the ALPACA_CONFIG dictionary
@@ -21,6 +22,7 @@ class SwingHigh(Strategy):
     shares_per_ticker = {}  # Dictionary to specify the number of shares per ticker
 
     def initialize(self):
+         
         self.symbols = {
             "ALLY": 290,
             "AMZN": 100,
@@ -58,9 +60,10 @@ class SwingHigh(Strategy):
             "VOO": 240,
             "VRSN": 250,
             "SNOW": 260
-        }
+            }
+            
         self.shares_per_ticker = self.symbols  # Directly assign the dictionary
-        self.sleeptime = "10S"
+        self.sleeptime = "10S"  # Set the sleep time to 10 seconds
     
     def on_trading_iteration(self):
         for symbol in self.symbols:
@@ -109,7 +112,7 @@ if __name__ == "__main__":
         bot.run_all()
     else:
         start = datetime(2024, 8, 1)
-        end = datetime(2024, 8, 31)
+        end = datetime(2024, 8, 5)
         SwingHigh.backtest(
             YahooDataBacktesting,
             start,

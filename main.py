@@ -196,7 +196,7 @@ def mail_alert(mail_content, sleep_time):
     # The mail addresses and password
     sender_address = EMAIL_ADDRESS
     sender_pass = EMAIL_PASSWORD
-    receiver_address = YOUR_EMAIL_ADDRESS
+    receiver_address = os.environ.get("YOUR_EMAIL_ADDRESS")
 
     # Setup MIME
     message = MIMEMultipart()

@@ -26,7 +26,7 @@ class Trend(Strategy):
         self.signal = signal
         self.start = start
         self.sleeptime = "1D"
-    # minute bars, make functions    
+
 
     def on_trading_iteration(self):
         bars = self.get_historical_prices("GLD", 22, "day")
@@ -42,23 +42,68 @@ class Trend(Strategy):
                                  "SELL", gld['Signal'])
         self.signal = gld.iloc[-1].Signal
         
+        '''
+        For testing a single ticker
         symbol = "GLD"
         quantity = 200
-        if self.signal == 'BUY':
-            pos = self.get_position(symbol)
-            if pos is not None:
-                self.sell_all()
-                
-            order = self.create_order(symbol, quantity, "buy")
-            self.submit_order(order)
+        '''
 
-        elif self.signal == 'SELL':
-            pos = self.get_position(symbol)
-            if pos is not None:
-                self.sell_all()
-                
-            order = self.create_order(symbol, quantity, "sell")
-            self.submit_order(order)
+        symbols = {
+            "ALLY": 290,
+            "AMZN": 100,
+            "AXP": 75,
+            "AON": 410,
+            "AAPL": 400,
+            "BATRK": 223,
+            "BAC": 90,
+            "COF": 70,
+            "CHTR": 65,
+            "CVX": 110,
+            "C": 95,
+            "CB": 85,
+            "DVA": 45,
+            "DEO": 100,
+            "FND": 40,
+            "JEF": 25,
+            "KHC": 35,
+            "KR": 50,
+            "LILA": 70,
+            "LILAK": 80,
+            "LSXMA": 90,
+            "LSXMK": 100,
+            "FWONK": 130,
+            "LPX": 140,
+            "MA": 150,
+            "MCO": 160,
+            "NU": 170,
+            "NVR": 180,
+            "OXY": 190,
+            "SIRI": 200,
+            "SPY": 210,
+            "TMUS": 220,
+            "ULTA": 230,
+            "VOO": 240,
+            "VRSN": 250,
+            "SNOW": 260
+        }
+
+        for symbol in symbols:
+            quantity = symbols[symbol]
+            if self.signal == 'BUY':
+                pos = self.get_position(symbol)
+                if pos is not None:
+                    self.sell_all()
+                    
+                order = self.create_order(symbol, quantity, "buy")
+                self.submit_order(order)
+
+            elif self.signal == 'SELL':
+                pos = self.get_position(symbol)
+                if pos is not None:
+                    self.sell_all()
+                    
+                order = self.create_order(symbol, quantity, "sell")
+                self.submit_order(order)
 
     
 if __name__ == "__main__":
@@ -76,5 +121,5 @@ if __name__ == "__main__":
         Trend.backtest(
             YahooDataBacktesting,
             start,
-            end
+            end        
         )
