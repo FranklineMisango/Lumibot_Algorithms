@@ -126,7 +126,7 @@ class Momentum(Strategy):
 
 # TODO - Figure the datasource error and correct it
 async def main():
-    is_live = True
+    is_live = False
 
     if is_live:
         trader = Trader()

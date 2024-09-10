@@ -4,10 +4,7 @@ from lumibot.backtesting import YahooDataBacktesting
 from lumibot.brokers import Alpaca
 from lumibot.traders import Trader
 import os
-from dotenv import load_dotenv
-load_dotenv()
-
-# Populate the ALPACA_CONFIG dictionary
+import asyncio
 #Environment variables 
 from dotenv import load_dotenv
 load_dotenv()
@@ -118,5 +115,14 @@ if __name__ == "__main__":
     is_live = True
 
     if is_live:
+        # Ensure the ALPACA_CONFIG dictionary is correctly populated
+        if not all(ALPACA_CONFIG.values()):
+            raise ValueError("Missing Alpaca API credentials")
         trader = Trader()
         broker = Alpaca(ALPACA_CONFIG)
+
+        # Ensure the asyncio event loop is correctly managed
+        loop = asyncio.get_event_loop()
+        strategy = Momentum(broker=broker)
+        trader.add_strategy(strategy)
+        loop.run_until_complete(trader.run_all(broker))
