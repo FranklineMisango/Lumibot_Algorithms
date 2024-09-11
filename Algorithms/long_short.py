@@ -1,10 +1,9 @@
-import datetime
-import threading
 import os
-
+import yfinance as yf
+import threading
 from dotenv import load_dotenv
 load_dotenv()
-
+import datetime
 import alpaca_trade_api as tradeapi
 import time
 from alpaca_trade_api.rest import TimeFrame
@@ -20,10 +19,14 @@ class LongShort:
     self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
 
     stockUniverse = ['DOMO', 'TLRY', 'SQ', 'MRO', 'AAPL', 'GM', 'SNAP', 'SHOP',
-                     'SPLK', 'BA', 'AMZN', 'SUI', 'SUN', 'TSLA', 'CGC', 'SPWR',
-                     'NIO', 'CAT', 'MSFT', 'PANW', 'OKTA', 'TWTR', 'TM', 'RTN',
-                     'ATVI', 'GS', 'BAC', 'MS', 'TWLO', 'QCOM', ]
-    # Format the allStocks variable for use in the class.
+                    'BA', 'AMZN', 'SUI', 'SUN', 'TSLA', 'CGC', 'NIO', 'CAT', 
+                    'MSFT', 'PANW', 'OKTA', 'TM',
+                    'GS', 'BAC', 'MS', 'TWLO', 'QCOM', 'NVDA', 'VST',
+                    'MSTR', 'CVNA', 'CAVA', 'SN', 'INSM', 'FTAI', 'WING', 'MMYT',
+                    'SFM', 'FYBR', 'ASTS', 'BRFS', 'TLN', 'ANF', 'ERJ', 'ZETA',
+                    'LUMN', 'BMA', 'PI', 'OSCR', 'CLBT', 'DYN', 'EAT', 'BBAR',
+                    'AMRX', 'CORZ', 'CDE']
+    
     self.allStocks = []
     for stock in stockUniverse:
       self.allStocks.append([stock, 0])
@@ -73,7 +76,7 @@ class LongShort:
             orderSide = 'buy'
           qty = abs(int(float(position.qty)))
           respSO = []
-          tSubmitOrder = threading.Thread(target=self.submitOrder(qty, position.symbol, orderSide, respSO))
+          tSubmitOrder = threading.Thread(target=self.submitOrder, args=(qty, position.symbol, orderSide, respSO))
           tSubmitOrder.start()
           tSubmitOrder.join()
 
@@ -125,7 +128,7 @@ class LongShort:
           else:
             side = "buy"
           respSO = []
-          tSO = threading.Thread(target=self.submitOrder, args=[abs(int(float(position.qty))), position.symbol, side, respSO])
+          tSO = threading.Thread(target=self.submitOrder, args=(abs(int(float(position.qty))), position.symbol, side, respSO))
           tSO.start()
           tSO.join()
         else:
@@ -134,7 +137,7 @@ class LongShort:
             # Position changed from long to short.  Clear long position to prepare for short position.
             side = "sell"
             respSO = []
-            tSO = threading.Thread(target=self.submitOrder, args=[int(float(position.qty)), position.symbol, side, respSO])
+            tSO = threading.Thread(target=self.submitOrder, args=(int(float(position.qty)), position.symbol, side, respSO))
             tSO.start()
             tSO.join()
           else:
@@ -151,7 +154,7 @@ class LongShort:
                 # Too little short positions.  Sell some more.
                 side = "sell"
               respSO = []
-              tSO = threading.Thread(target=self.submitOrder, args=[abs(diff), position.symbol, side, respSO])
+              tSO = threading.Thread(target=self.submitOrder, args=(abs(diff), position.symbol, side, respSO))
               tSO.start()
               tSO.join()
             executed[1].append(position.symbol)
@@ -161,7 +164,7 @@ class LongShort:
         if(position.side == "short"):
           # Position changed from short to long.  Clear short position to prepare for long position.
           respSO = []
-          tSO = threading.Thread(target=self.submitOrder, args=[abs(int(float(position.qty))), position.symbol, "buy", respSO])
+          tSO = threading.Thread(target=self.submitOrder, args=(abs(int(float(position.qty))), position.symbol, "buy", respSO))
           tSO.start()
           tSO.join()
         else:
@@ -178,7 +181,7 @@ class LongShort:
               # Too little long positions.  Buy some more.
               side = "buy"
             respSO = []
-            tSO = threading.Thread(target=self.submitOrder, args=[abs(diff), position.symbol, side, respSO])
+            tSO = threading.Thread(target=self.submitOrder, args=(abs(diff), position.symbol, side, respSO))
             tSO.start()
             tSO.join()
           executed[0].append(position.symbol)
@@ -186,55 +189,55 @@ class LongShort:
 
     # Send orders to all remaining stocks in the long and short list.
     respSendBOLong = []
-    tSendBOLong = threading.Thread(target=self.sendBatchOrder, args=[self.qLong, self.long, "buy", respSendBOLong])
+    tSendBOLong = threading.Thread(target=self.sendBatchOrder, args=(self.qLong, self.long, "buy", respSendBOLong))
     tSendBOLong.start()
     tSendBOLong.join()
-    respSendBOLong[0][0] += executed[0]
-    if(len(respSendBOLong[0][1]) > 0):
-      # Handle rejected/incomplete orders and determine new quantities to purchase.
-      respGetTPLong = []
-      tGetTPLong = threading.Thread(target=self.getTotalPrice, args=[respSendBOLong[0][0], respGetTPLong])
-      tGetTPLong.start()
-      tGetTPLong.join()
-      if (respGetTPLong[0] > 0):
-        self.adjustedQLong = self.longAmount // respGetTPLong[0]
-      else:
-        self.adjustedQLong = -1
-    else:
-      self.adjustedQLong = -1
+    if respSendBOLong:
+        respSendBOLong[0][0] += executed[0]
+        if(len(respSendBOLong[0][1]) > 0):
+          # Handle rejected/incomplete orders and determine new quantities to purchase.
+          respGetTPLong = []
+          thread = threading.Thread(target=self.getTotalPrice, args=(self.long, respGetTPLong))
+          thread.start()
+          thread.join()
+          if respGetTPLong and len(respGetTPLong) > 0:
+              self.qLong = int(self.longAmount // respGetTPLong[0])
+          else:
+              print("Error: respGetTPLong is empty or does not contain valid data.")
 
     respSendBOShort = []
-    tSendBOShort = threading.Thread(target=self.sendBatchOrder, args=[self.qShort, self.short, "sell", respSendBOShort])
+    tSendBOShort = threading.Thread(target=self.sendBatchOrder, args=(self.qShort, self.short, "sell", respSendBOShort))
     tSendBOShort.start()
     tSendBOShort.join()
-    respSendBOShort[0][0] += executed[1]
-    if(len(respSendBOShort[0][1]) > 0):
-      # Handle rejected/incomplete orders and determine new quantities to purchase.
-      respGetTPShort = []
-      tGetTPShort = threading.Thread(target=self.getTotalPrice, args=[respSendBOShort[0][0], respGetTPShort])
-      tGetTPShort.start()
-      tGetTPShort.join()
-      if(respGetTPShort[0] > 0):
-        self.adjustedQShort = self.shortAmount // respGetTPShort[0]
-      else:
-        self.adjustedQShort = -1
-    else:
-      self.adjustedQShort = -1
+    if respSendBOShort:
+        respSendBOShort[0][0] += executed[1]
+        if(len(respSendBOShort[0][1]) > 0):
+          # Handle rejected/incomplete orders and determine new quantities to purchase.
+          respGetTPShort = []
+          thread = threading.Thread(target=self.getTotalPrice, args=(self.short, respGetTPShort))
+          thread.start()
+          thread.join()
+          if(respGetTPShort[0] > 0):
+            self.adjustedQShort = self.shortAmount // respGetTPShort[0]
+          else:
+            self.adjustedQShort = -1
+        else:
+          self.adjustedQShort = -1
 
     # Reorder stocks that didn't throw an error so that the equity quota is reached.
-    if(self.adjustedQLong > -1):
+    if(self.adjustedQLong is not None and self.adjustedQLong > -1):
       self.qLong = int(self.adjustedQLong - self.qLong)
       for stock in respSendBOLong[0][0]:
         respResendBOLong = []
-        tResendBOLong = threading.Thread(target=self.submitOrder, args=[self.qLong, stock, "buy", respResendBOLong])
+        tResendBOLong = threading.Thread(target=self.submitOrder, args=(self.qLong, stock, "buy", respResendBOLong))
         tResendBOLong.start()
         tResendBOLong.join()
 
-    if(self.adjustedQShort > -1):
+    if(self.adjustedQShort is not None and self.adjustedQShort > -1):
       self.qShort = int(self.adjustedQShort - self.qShort)
       for stock in respSendBOShort[0][0]:
         respResendBOShort = []
-        tResendBOShort = threading.Thread(target=self.submitOrder, args=[self.qShort, stock, "sell", respResendBOShort])
+        tResendBOShort = threading.Thread(target=self.submitOrder, args=(self.qShort, stock, "sell", respResendBOShort))
         tResendBOShort.start()
         tResendBOShort.join()
 
@@ -263,34 +266,34 @@ class LongShort:
     self.longAmount = equity - self.shortAmount
 
     respGetTPLong = []
-    tGetTPLong = threading.Thread(target=self.getTotalPrice, args=[self.long, respGetTPLong])
-    tGetTPLong.start()
-    tGetTPLong.join()
+    thread = threading.Thread(target=self.getTotalPrice, args=(self.long, respGetTPLong))
+    thread.start()
+    thread.join()
 
     respGetTPShort = []
-    tGetTPShort = threading.Thread(target=self.getTotalPrice, args=[self.short, respGetTPShort])
-    tGetTPShort.start()
-    tGetTPShort.join()
+    thread = threading.Thread(target=self.getTotalPrice, args=(self.short, respGetTPShort))
+    thread.start()
+    thread.join()
 
     self.qLong = int(self.longAmount // respGetTPLong[0])
     self.qShort = int(self.shortAmount // respGetTPShort[0])
 
-  # Get the total price of the array of input stocks.
   def getTotalPrice(self, stocks, resp):
-    totalPrice = 0
-
-    for stock in stocks:
-      bars = self.alpaca.get_bars(stock[0], TimeFrame.Minute,
-                                  pd.Timestamp('now').date(),
-                                  pd.Timestamp('now').date(), limit=1,
-                                  adjustment='raw')
-
-      if len(bars) != 0:
-        totalPrice += bars[0].c
+      totalPrice = 0
+      for stock in stocks:
+          try:
+              stock_data = yf.Ticker(stock)
+              bars = stock_data.history(period='1d', interval='1m')
+              if not bars.empty:
+                  totalPrice += bars['Close'].iloc[-1]
+              else:
+                  print(f"No price data found for {stock}, skipping...")
+          except Exception as e:
+              print(f"Failed to download data for {stock}: {e}")
       
+      resp.append(totalPrice)
 
-    resp.append(totalPrice)
-
+      
   # Submit a batch order that returns completed and uncompleted orders.
   def sendBatchOrder(self, qty, stocks, side, resp):
     executed = []
@@ -298,10 +301,10 @@ class LongShort:
     for stock in stocks:
       if(self.blacklist.isdisjoint({stock})):
         respSO = []
-        tSubmitOrder = threading.Thread(target=self.submitOrder, args=[qty, stock, side, respSO])
+        tSubmitOrder = threading.Thread(target=self.submitOrder, args=(qty, stock, side, respSO))
         tSubmitOrder.start()
         tSubmitOrder.join()
-        if(not respSO[0]):
+        if respSO and not respSO[0]:
           # Stock order did not go through, add it to incomplete.
           incomplete.append(stock)
         else:
@@ -311,6 +314,10 @@ class LongShort:
 
   # Submit an order if quantity is above 0.
   def submitOrder(self, qty, stock, side, resp):
+    if qty is None:
+      print("Quantity is None, cannot submit order.")
+      resp.append(False)
+      return
     if(qty > 0):
       try:
         self.alpaca.submit_order(stock, qty, side, "market", "day")
@@ -323,6 +330,7 @@ class LongShort:
       print("Quantity is 0, order of | " + str(qty) + " " + stock + " " + side + " | not completed.")
       resp.append(True)
 
+  '''
   # Get percent changes of the stock prices over the past 10 minutes.
   def getPercentChanges(self):
     length = 10
@@ -334,7 +342,18 @@ class LongShort:
       if len(bars) != 0:
         self.allStocks[i][1] = (bars[len(bars) - 1].c - bars[0].o) / bars[0].o
       
+  '''
 
+  def getPercentChanges(self):
+    length = 10
+    for i, stock in enumerate(self.allStocks):
+        data = yf.download(stock[0], period='1d', interval='1m')
+        if len(data) >= length:
+            open_price = data.iloc[0]['Open']
+            close_price = data.iloc[-1]['Close']
+            self.allStocks[i][1] = (close_price - open_price) / open_price
+        else:
+            self.allStocks[i][1] = 0
   # Mechanism used to rank the stocks, the basis of the Long-Short Equity Strategy.
   def rank(self):
     # Ranks all stocks by percent change over the past 10 minutes (higher is better).

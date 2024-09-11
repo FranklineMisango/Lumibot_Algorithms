@@ -12,7 +12,7 @@ st.title("Frankline & Co. HFT Trading Bot Progress Monitoring - Test Run I")
 st.write("Simulating Q2 Portfolio from Warren Buffet's Berkshire Hathaway")
 try:
     # Start main.py and capture its output
-    process = subprocess.Popen(['python', 'main.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
+    process = subprocess.Popen(['python', 'long_short_strategy.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
     if process:
         st.success("main.py started successfully")
         logger.info("main.py started successfully")
@@ -31,7 +31,6 @@ except Exception as e:
     st.error(f"Error reading output from main.py: {e}")
     logger.error(f"Error reading output from main.py: {e}")
 
-'''
 try:
     # start the ttyd server and display the terminal on streamlit
     ttydprocess, port = terminal(cmd="top")
@@ -54,4 +53,4 @@ try:
 except Exception as e:
     st.error(f"Failed to terminate main.py: {e}")
     logger.error(f"Failed to terminate main.py: {e}")
-'''
+
