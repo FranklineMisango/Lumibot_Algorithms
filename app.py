@@ -10,8 +10,6 @@ logger = logging.getLogger(__name__)
 
 st.title("Frankline & Co. HFT Trading Bot Progress Monitoring - Test Run I")
 st.write("Simulating Q2 Portfolio from Warren Buffet's Berkshire Hathaway")
-st.image("image/Warren-Buffett-Stock-Holdings.png", use_column_width=True)
-
 try:
     # Start main.py and capture its output
     process = subprocess.Popen(['python', 'main.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
