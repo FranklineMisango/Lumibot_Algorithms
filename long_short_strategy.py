@@ -31,6 +31,7 @@ class LongShort:
                          'INSM', 'FTAI', 'WING', 'MMYT', 'SFM', 'FYBR', 'ASTS', 
                          'BRFS', 'TLN', 'ANF', 'ERJ', 'ZETA', 'LUMN', 'BMA', 'PI', 
                          'OSCR', 'CLBT', 'DYN', 'EAT', 'BBAR', 'AMRX', 'CORZ', 'CDE']
+        
         self.allStocks = [[stock, 0] for stock in stockUniverse]
         self.long = []
         self.short = []
