@@ -17,9 +17,10 @@ import csv
 API_KEY = os.environ.get('APCA_API_KEY_ID')
 API_SECRET = os.environ.get('APCA_API_SECRET_KEY')
 APCA_API_BASE_URL = "https://paper-api.alpaca.markets"
-EMAIL_USER = os.environ.get('EMAIL_USER')
+
+EMAIL_USER = os.environ.get('EMAIL_ADDRESS')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
-EMAIL_RECEIVER = os.environ.get('EMAIL_RECEIVER')
+EMAIL_RECEIVER = os.environ.get('YOUR_EMAIL_ADDRESS')
 
 class LongShort:
     def __init__(self):
