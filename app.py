@@ -30,10 +30,6 @@ try:
 except Exception as e:
     st.error(f"Error reading output from main.py: {e}")
     logger.error(f"Error reading output from main.py: {e}")
-<<<<<<< HEAD
-=======
-
->>>>>>> 53273761e179ee3b60eadf4730d3874936997b57
 try:
     # start the ttyd server and display the terminal on streamlit
     ttydprocess, port = terminal(cmd="top")
