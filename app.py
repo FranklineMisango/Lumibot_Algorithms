@@ -14,11 +14,11 @@ try:
     # Start main.py and capture its output
     process = subprocess.Popen(['python', 'long_short_strategy.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
     if process:
-        st.success("main.py started successfully")
-        logger.info("main.py started successfully")
+        st.success("Strategy  started successfully")
+        logger.info("Strategy started successfully")
 except Exception as e:
-    st.error(f"Failed to start main.py: {e}")
-    logger.error(f"Failed to start main.py: {e}")
+    st.error(f"Failed to start Strategy: {e}")
+    logger.error(f"Failed to start Strategy: {e}")
 
 # Display the output of main.py in Streamlit
 st.write("Output on Test Day run from our HFT bot:")
@@ -30,7 +30,10 @@ try:
 except Exception as e:
     st.error(f"Error reading output from main.py: {e}")
     logger.error(f"Error reading output from main.py: {e}")
+<<<<<<< HEAD
+=======
 
+>>>>>>> 53273761e179ee3b60eadf4730d3874936997b57
 try:
     # start the ttyd server and display the terminal on streamlit
     ttydprocess, port = terminal(cmd="top")
