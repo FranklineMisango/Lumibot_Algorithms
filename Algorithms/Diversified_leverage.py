@@ -145,8 +145,8 @@ if __name__ == "__main__":
         ####
 
         # Choose the time from and to which you want to backtest
-        backtesting_start = datetime(2020, 1, 1)
-        backtesting_end = datetime(2024,8, 31)
+        backtesting_start = datetime(2024, 1, 1)
+        backtesting_end = datetime(2024,9, 12)
 
         # 0.01% trading/slippage fee
         trading_fee = TradingFee(percent_fee=0.005)
