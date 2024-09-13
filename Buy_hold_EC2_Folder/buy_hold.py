@@ -20,7 +20,7 @@ import schedule
 import matplotlib.pyplot as plt
 import datetime
 import pytz
-
+from datetime import timedelta
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -38,41 +38,6 @@ trade_client = TradingClient(api_key=API_KEY, secret_key=API_SECRET, paper=paper
 
 #
 
-def awaitMarketOpen(self):
-    nyc = pytz.timezone('America/New_York')
-    isOpen = self.alpaca.get_clock().is_open
-    while not isOpen:
-        clock = self.alpaca.get_clock()
-        openingTime = clock.next_open.replace(tzinfo=datetime.timezone.utc).timestamp()
-        currTime = clock.timestamp.replace(tzinfo=datetime.timezone.utc).timestamp()
-        timeToOpen = int((openingTime - currTime) / 60)
-        print(f"{timeToOpen} minutes till market open.")
-        time.sleep(60)
-        isOpen = self.alpaca.get_clock().is_open
-    self.send_email("Market Opened", "The market has opened.")
-
-def market_close(minutes=0):
-    def job():
-        now = datetime.now()
-        market_close_time = now.replace(hour=16, minute=0, second=0, microsecond=0) - timedelta(minutes=minutes)
-        if now >= market_close_time:
-            return True
-        return False
-    return job
-
-def every_30_minutes():
-    def job():
-        return True
-    return job
-
-
-def log_portfolio(self, time_of_day):
-        positions = self.alpaca.list_positions()
-        with open(f'portfolio_{time_of_day}.csv', mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["Symbol", "Qty", "Side"])
-            for position in positions:
-                writer.writerow([position.symbol, position.qty, position.side])
 
 # Populate the ALPACA_CONFIG dictionary
 ALPACA_CONFIG = {
@@ -83,15 +48,49 @@ ALPACA_CONFIG = {
 
 
 class BuyHold(Strategy):
-    #initialize the strategy
-    def __init__(self, broker):
-        self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
+
+    def __init__(self):
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
         self.initial_portfolio_value = 0
         self.end_of_day_portfolio_value = 0
         self.start_of_day_portfolio_value = 0
         self.stock_initial_prices = {}
 
+    def awaitMarketOpen(self):
+        nyc = pytz.timezone('America/New_York')
+        isOpen = self.alpaca.get_clock().is_open
+        while not isOpen:
+            clock = self.alpaca.get_clock()
+            openingTime = clock.next_open.replace(tzinfo=datetime.timezone.utc).timestamp()
+            currTime = clock.timestamp.replace(tzinfo=datetime.timezone.utc).timestamp()
+            timeToOpen = int((openingTime - currTime) / 60)
+            print(f"{timeToOpen} minutes till market open.")
+            time.sleep(60)
+            isOpen = self.alpaca.get_clock().is_open
+        self.send_email("Market Opened", "The market has opened.")
+
+    def market_close(minutes=0):
+        def job():
+            now = datetime.now()
+            market_close_time = now.replace(hour=16, minute=0, second=0, microsecond=0) - timedelta(minutes=minutes)
+            if now >= market_close_time:
+                return True
+            return False
+        return job
+
+    def every_30_minutes():
+        def job():
+            return True
+        return job
+
+
+    def log_portfolio(self, time_of_day):
+            positions = self.alpaca.list_positions()
+            with open(f'portfolio_{time_of_day}.csv', mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["Symbol", "Qty", "Side"])
+                for position in positions:
+                    writer.writerow([position.symbol, position.qty, position.side])
 
     def initialize(self):
         self.sleeptime = "1D"
@@ -280,7 +279,17 @@ class BuyHold(Strategy):
 
 
 if __name__ == "__main__":
-    broker = None  # Replace with actual broker instance if needed
-    strategy = BuyHold(broker)
-    strategy.initialize()
-    strategy.run()
+    live = True
+    if live : 
+        strategy = BuyHold()
+        strategy.initialize()
+        strategy.run()
+
+    else:
+        start = dt(2020, 1, 1)  # Convert start_date to datetime
+        end = dt(2024, 8, 31)  # Convert end_date to datetime
+        BuyHold.backtest(
+            YahooDataBacktesting,
+            start,
+            end
+        )
