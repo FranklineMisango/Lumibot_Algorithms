@@ -13,6 +13,10 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 import csv
+from datetime import datetime as dt
+from datetime import timedelta
+
+
 
 API_KEY = os.environ.get('APCA_API_KEY_ID')
 API_SECRET = os.environ.get('APCA_API_SECRET_KEY')
@@ -22,16 +26,76 @@ EMAIL_USER = os.environ.get('EMAIL_ADDRESS')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 EMAIL_RECEIVER = os.environ.get('YOUR_EMAIL_ADDRESS')
 
+#Helper functions
+def send_email(self):
+        msg = MIMEMultipart()
+        msg['From'] = 'Frankline & Co. HFT Day Trading Bot'
+        msg['To'] = EMAIL_RECEIVER
+        msg['Subject'] = "Daily Trade Report"
+        body = "Hello Trader, Attached is the Daily trade report from Day Trading."
+        msg.attach(MIMEText(body, 'plain'))
+        filename = "orders.csv"
+        with open(filename, "w", newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Stock", "Quantity", "Side", "Status"])
+            writer.writerows(self.orders_log)
+        attachment = open(filename, "rb")
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', f"attachment; filename= {filename}")
+        msg.attach(part)
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASSWORD)
+        text = msg.as_string()
+        server.sendmail(EMAIL_USER, EMAIL_RECEIVER, text)
+        server.quit()
+    
+def mail_alert(mail_content, sleep_time):
+    # The mail addresses and password
+    sender_address = EMAIL_USER
+    sender_pass = EMAIL_PASSWORD
+    receiver_address = os.environ.get("YOUR_EMAIL_ADDRESS")
+
+    # Setup MIME
+    message = MIMEMultipart()
+    message['From'] = 'Frankline & Co. HFT Day Trading Bot'
+    message['To'] = receiver_address
+    message['Subject'] = 'Frankline & Co. HFT Important Day Updates'
+    
+    # The body and the attachments for the mail
+    message.attach(MIMEText(mail_content, 'plain'))
+
+    # Create SMTP session for sending the mail
+    session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
+    session.starttls()  # enable security
+
+    # login with mail_id and password
+    session.login(sender_address, sender_pass)
+    text = message.as_string()
+    session.sendmail(sender_address, receiver_address, text)
+    session.quit()
+    time.sleep(sleep_time)
+
+
 class LongShort:
     def __init__(self):
+
+        #TODO - Add more stocks to the stockUniverse with diverse leverage
+
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
-        stockUniverse = ['DOMO', 'TLRY', 'SQ', 'MRO', 'AAPL', 'GM', 'SNAP', 'SHOP',
-                         'BA', 'AMZN', 'SUI', 'SUN', 'TSLA', 'CGC', 'NIO', 'CAT', 
-                         'MSFT', 'PANW', 'OKTA', 'TM', 'GS', 'BAC', 'MS', 'TWLO', 
-                         'QCOM', 'NVDA', 'VST', 'MSTR', 'CVNA', 'CAVA', 'SN', 
-                         'INSM', 'FTAI', 'WING', 'MMYT', 'SFM', 'FYBR', 'ASTS', 
-                         'BRFS', 'TLN', 'ANF', 'ERJ', 'ZETA', 'LUMN', 'BMA', 'PI', 
-                         'OSCR', 'CLBT', 'DYN', 'EAT', 'BBAR', 'AMRX', 'CORZ', 'CDE']
+        
+        stockUniverse =     ['AAPL', 'MSFT', 'NVDA', 'GOOG', 'META', 'ADBE', 'CSCO', 'CRM', 'INTC', 'ORCL' 
+                            'JPM', 'BAC', 'GS', 'MS', 'C', 'WFC', 'AXP', 'BLK', 'SCHW', 'SPGI',
+                            'JNJ', 'PFE', 'UNH', 'ABT', 'MRK', 'AMGN', 'TMO', 'GILD', 'CVS', 'MDT',
+                            'AMZN', 'TSLA', 'NKE', 'MCD', 'HD', 'LOW', 'DIS', 'SBUX', 'NFLX', 'PCLN',
+                            'GOOGL', 'META', 'DIS', 'NFLX', 'T', 'VZ', 'CMCSA', 'ATVI', 'TTWO', 'SNAP',
+                            'BA', 'CAT', 'HON', 'GE', 'LMT', 'UPS', 'RTX', 'MMM', 'DE', 'NOC',
+                            'PG', 'KO', 'PEP', 'WMT', 'COST', 'CAG', 'MDLZ', 'CL', 'SJM', 'GIS',
+                            'XOM', 'CVX', 'BP', 'SLB', 'EOG', 'OXY', 'PXD', 'VLO', 'KMI', 'PSX',
+                            'NEE', 'DUK', 'SO', 'D', 'EXC', 'SRE', 'AEP', 'ED', 'PCG', 'XEL',
+                            'AMT', 'PLD', 'SPG', 'EQIX', 'O', 'VTR', 'DRE', 'AVB', 'PSA', 'WPC']
         
         self.allStocks = [[stock, 0] for stock in stockUniverse]
         self.long = []
@@ -56,6 +120,9 @@ class LongShort:
         tAMO.start()
         tAMO.join()
         print("Market opened.")
+        mail_content = 'The bot started running on {} at {} UTC'.format(dt.now().strftime('%Y-%m-%d'), dt.now().strftime('%H:%M:%S'))
+        mail_alert(mail_content, 0)
+
         while True:
             clock = self.alpaca.get_clock()
             closingTime = clock.next_close.replace(tzinfo=datetime.timezone.utc).timestamp()
@@ -209,7 +276,7 @@ class LongShort:
             elif i > (len(self.allStocks) - 1 - longShortAmount):
                 self.long.append(stockField[0])
         equity = int(float(self.alpaca.get_account().equity))
-        self.shortAmount = equity * 0.30
+        self.shortAmount = equity * 0.45
         self.longAmount = equity - self.shortAmount
         respGetTPLong = []
         thread = threading.Thread(target=self.getTotalPrice, args=(self.long, respGetTPLong))
@@ -280,31 +347,7 @@ class LongShort:
             for position in positions:
                 writer.writerow([position.symbol, position.qty, position.side])
 
-    def send_email(self):
-        msg = MIMEMultipart()
-        msg['From'] = EMAIL_USER
-        msg['To'] = EMAIL_RECEIVER
-        msg['Subject'] = "Daily Trade Report"
-        body = "Attached is the daily trade report."
-        msg.attach(MIMEText(body, 'plain'))
-        filename = "orders.csv"
-        with open(filename, "w", newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["Stock", "Quantity", "Side", "Status"])
-            writer.writerows(self.orders_log)
-        attachment = open(filename, "rb")
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(attachment.read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', f"attachment; filename= {filename}")
-        msg.attach(part)
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASSWORD)
-        text = msg.as_string()
-        server.sendmail(EMAIL_USER, EMAIL_RECEIVER, text)
-        server.quit()
-
+    
     def getPercentChanges(self):
         length = 10
         for i, stock in enumerate(self.allStocks):
