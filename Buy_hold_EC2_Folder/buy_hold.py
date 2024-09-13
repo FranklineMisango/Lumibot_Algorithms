@@ -85,22 +85,7 @@ class BuyHold(Strategy):
                 positions = self.get_positions_with_retries()
                 if not positions:
                     print("No positions found. Placing the first trade.")
-                    self.on_trading_iteration()
-                else:
-                    for position in positions:
-                        current_price = float(position.current_price)
-                        initial_price = self.stock_initial_prices.get(position.symbol, current_price)
-                        if current_price < 0.85 * initial_price:
-                            self.sell_stock(position.symbol, position.qty)
-                        elif current_price > 1.10 * initial_price:
-                            self.buy_more_stock(position.symbol)
-            except Exception as e:
-                print(f"Error fetching positions: {e}")
-            time.sleep(300)  # Check every 5 minutes
-
-    def on_trading_iteration(self):
-        if self.first_iteration:
-            stocks_and_quantities = [
+                    stocks_and_quantities = [
                 {"symbol": "AAPL", "quantity": 4224},
                 {"symbol": "BAC", "quantity": 9742},
                 {"symbol": "AXP", "quantity": 1261},
@@ -140,16 +125,28 @@ class BuyHold(Strategy):
                 {"symbol": "SPY", "quantity": 2},
                 {"symbol": "LILAK", "quantity": 114},
                 {"symbol": "BATRK", "quantity": 22},
-            ]
-            for stock_info in stocks_and_quantities:
-                symbol = stock_info["symbol"]
-                quantity = stock_info["quantity"]
-                price = self.get_last_price(symbol)
-                cost = price * quantity
-                if self.cash >= cost:
-                    order = self.create_order(symbol, quantity, "buy")
-                    self.submit_order(order)
-            self.first_iteration = False
+                ]
+                for stock_info in stocks_and_quantities:
+                    symbol = stock_info["symbol"]
+                    quantity = stock_info["quantity"]
+                    price = self.get_last_price(symbol)
+                    cost = price * quantity
+                    if self.cash >= cost:
+                        order = self.create_order(symbol, quantity, "buy")
+                        self.submit_order(order)
+
+                else:
+
+                    for position in positions:
+                        current_price = float(position.current_price)
+                        initial_price = self.stock_initial_prices.get(position.symbol, current_price)
+                        if current_price < 0.85 * initial_price:
+                            self.sell_stock(position.symbol, position.qty)
+                        elif current_price > 1.10 * initial_price:
+                            self.buy_more_stock(position.symbol)
+            except Exception as e:
+                print(f"Error fetching positions: {e}")
+            time.sleep(300)  # Check every 5 minutes
 
     def run(self):
         self.log_portfolio("start")
