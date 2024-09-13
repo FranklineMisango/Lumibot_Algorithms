@@ -22,6 +22,10 @@ import datetime
 import pytz
 from datetime import timedelta
 
+from alpaca.trading.requests import MarketOrderRequest
+
+from alpaca.trading.enums import AssetStatus,OrderSide, OrderType, TimeInForce, OrderClass, QueryOrderStatus
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -85,57 +89,61 @@ class BuyHold():
                 if not positions:
                     print("No positions found. Placing the first trade.")
                     stocks_and_quantities = [
-                {"symbol": "AAPL", "quantity": 4224},
-                {"symbol": "BAC", "quantity": 9742},
-                {"symbol": "AXP", "quantity": 1261},
-                {"symbol": "KO", "quantity": 4191},
-                {"symbol": "CVX", "quantity": 1393},
-                {"symbol": "OXY", "quantity": 3215},
-                {"symbol": "KHC", "quantity": 3150},
-                {"symbol": "MCO", "quantity": 185},
-                {"symbol": "CB", "quantity": 328},
-                {"symbol": "DVA", "quantity": 442},
-                {"symbol": "C", "quantity": 521},
-                {"symbol": "KR", "quantity": 479},
-                {"symbol": "SIRI", "quantity": 935},
-                {"symbol": "V", "quantity": 84},
-                {"symbol": "VRSN", "quantity": 108},
-                {"symbol": "MA", "quantity": 36},
-                {"symbol": "AMZN", "quantity": 96},
-                {"symbol": "NU", "quantity": 1027},
-                {"symbol": "AON", "quantity": 43},
-                {"symbol": "COF", "quantity": 86},
-                {"symbol": "CHTR", "quantity": 33},
-                {"symbol": "ALLY", "quantity": 48},
-                {"symbol": "TMUS", "quantity": 44},
-                {"symbol": "FWONK", "quantity": 50},
-                {"symbol": "LPX", "quantity": 63},
-                {"symbol": "LLYVK", "quantity": 47},
-                {"symbol": "FND", "quantity": 23},
-                {"symbol": "ULTA", "quantity": 8},
-                {"symbol": "HEI.A", "quantity": 9},
-                {"symbol": "LLYVA", "quantity": 71},
-                {"symbol": "NVR", "quantity": 0},
-                {"symbol": "DEO", "quantity": 6},
-                {"symbol": "LEN.B", "quantity": 8},
-                {"symbol": "JEF", "quantity": 20},
-                {"symbol": "LILA", "quantity": 158},
-                {"symbol": "VOO", "quantity": 2},
-                {"symbol": "SPY", "quantity": 2},
-                {"symbol": "LILAK", "quantity": 114},
-                {"symbol": "BATRK", "quantity": 22},
-                ]
-                for stock_info in stocks_and_quantities:
-                    symbol = stock_info["symbol"]
-                    quantity = stock_info["quantity"]
-                    price = self.get_last_price(symbol)
-                    cost = price * quantity
-                    if self.cash >= cost:
-                        order = self.create_order(symbol, quantity, "buy")
-                        self.submit_order(order)
+                    {"symbol": "AAPL", "quantity": 4224},
+                    {"symbol": "BAC", "quantity": 9742},
+                    {"symbol": "AXP", "quantity": 1261},
+                    {"symbol": "KO", "quantity": 4191},
+                    {"symbol": "CVX", "quantity": 1393},
+                    {"symbol": "OXY", "quantity": 3215},
+                    {"symbol": "KHC", "quantity": 3150},
+                    {"symbol": "MCO", "quantity": 185},
+                    {"symbol": "CB", "quantity": 328},
+                    {"symbol": "DVA", "quantity": 442},
+                    {"symbol": "C", "quantity": 521},
+                    {"symbol": "KR", "quantity": 479},
+                    {"symbol": "SIRI", "quantity": 935},
+                    {"symbol": "V", "quantity": 84},
+                    {"symbol": "VRSN", "quantity": 108},
+                    {"symbol": "MA", "quantity": 36},
+                    {"symbol": "AMZN", "quantity": 96},
+                    {"symbol": "NU", "quantity": 1027},
+                    {"symbol": "AON", "quantity": 43},
+                    {"symbol": "COF", "quantity": 86},
+                    {"symbol": "CHTR", "quantity": 33},
+                    {"symbol": "ALLY", "quantity": 48},
+                    {"symbol": "TMUS", "quantity": 44},
+                    {"symbol": "FWONK", "quantity": 50},
+                    {"symbol": "LPX", "quantity": 63},
+                    {"symbol": "LLYVK", "quantity": 47},
+                    {"symbol": "FND", "quantity": 23},
+                    {"symbol": "ULTA", "quantity": 8},
+                    {"symbol": "HEI.A", "quantity": 9},
+                    {"symbol": "LLYVA", "quantity": 71},
+                    {"symbol": "NVR", "quantity": 0},
+                    {"symbol": "DEO", "quantity": 6},
+                    {"symbol": "LEN.B", "quantity": 8},
+                    {"symbol": "JEF", "quantity": 20},
+                    {"symbol": "LILA", "quantity": 158},
+                    {"symbol": "VOO", "quantity": 2},
+                    {"symbol": "SPY", "quantity": 2},
+                    {"symbol": "LILAK", "quantity": 114},
+                    {"symbol": "BATRK", "quantity": 22},
+                    ]
+                    for stock_info in stocks_and_quantities:
+                        symbol = stock_info["symbol"]
+                        quantity = stock_info["quantity"]
+                        req = MarketOrderRequest (
+                                                symbol = symbol, 
+                                                qty = quantity,
+                                                side = OrderSide.BUY,
+                                                type = OrderType.MARKET,
+                                                time_in_force = TimeInForce.DAY,
+                                                client_order_id = None,)
+                    
+                    res = trade_client.submit_order(req)
+                    res
 
                 else:
-
                     for position in positions:
                         current_price = float(position.current_price)
                         initial_price = self.stock_initial_prices.get(position.symbol, current_price)
@@ -143,6 +151,7 @@ class BuyHold():
                             self.sell_stock(position.symbol, position.qty)
                         elif current_price > 1.10 * initial_price:
                             self.buy_more_stock(position.symbol)
+            
             except Exception as e:
                 print(f"Error fetching positions: {e}")
             time.sleep(300)  # Check every 5 minutes
