@@ -20,7 +20,6 @@ import schedule
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
-S
 
 from dotenv import load_dotenv
 load_dotenv()
