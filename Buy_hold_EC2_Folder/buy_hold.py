@@ -164,7 +164,7 @@ class BuyHold(Strategy):
                     self.sell_stock(position.symbol, position.qty)
                 elif current_price > 1.10 * initial_price:
                     self.buy_more_stock(position.symbol)
-            time.sleep(1800)  # Check every 30 minutes
+         
 
     def sell_stock(self, symbol, qty):
         self.alpaca.submit_order(
