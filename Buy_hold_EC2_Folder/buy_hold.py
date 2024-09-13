@@ -204,7 +204,7 @@ class BuyHold(Strategy):
 
     def send_email(self, subject, body, attachment=None):
         msg = MIMEMultipart()
-        msg['From'] = EMAIL_USER
+        msg['From'] = 'Frankline & Co. LP Day Trading HFT Bot'
         msg['To'] = EMAIL_RECEIVER
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'plain'))
