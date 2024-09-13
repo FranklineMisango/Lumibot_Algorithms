@@ -43,7 +43,7 @@ ALPACA_CONFIG = {
     'BASE_URL': os.environ.get('BASE_URL')
 }
 
-class BuyHold(Strategy):
+class BuyHold():
 
     def __init__(self):
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
@@ -252,9 +252,8 @@ class BuyHold(Strategy):
 if __name__ == "__main__":
     live = True
     if live : 
-        strategy = BuyHold()
-        strategy.initialize()
-        strategy.run()
+        bs = BuyHold()
+        bs.run()
     else:
         start = dt(2020, 1, 1)  # Convert start_date to datetime
         end = dt(2024, 8, 31)  # Convert end_date to datetime
