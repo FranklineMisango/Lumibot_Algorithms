@@ -50,11 +50,13 @@ ALPACA_CONFIG = {
 class BuyHold(Strategy):
 
     def __init__(self):
-        self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
-        self.initial_portfolio_value = 0
-        self.end_of_day_portfolio_value = 0
-        self.start_of_day_portfolio_value = 0
-        self.stock_initial_prices = {}
+            self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
+            self.initial_portfolio_value = 0
+            self.end_of_day_portfolio_value = 0
+            self.start_of_day_portfolio_value = 0
+            self.stock_initial_prices = {}
+            self.monitoring_thread = threading.Thread(target=self.monitor_prices)
+            self.monitoring_thread.daemon = True  # Ensure thread exits when main program exits
 
     def awaitMarketOpen(self):
         nyc = pytz.timezone('America/New_York')
@@ -124,7 +126,9 @@ class BuyHold(Strategy):
         print("Market opened.")
         self.send_email("Market Opened", "The market has opened.")
         self.stock_initial_prices = self.get_initial_prices()
-        self.monitor_prices()
+        
+        # Start the monitoring thread
+        self.monitoring_thread.start()
 
         while True:
             schedule.run_pending()
@@ -151,16 +155,16 @@ class BuyHold(Strategy):
         return initial_prices
 
     def monitor_prices(self):
-            while True:
-                positions = self.alpaca.list_positions()
-                for position in positions:
-                    current_price = float(position.current_price)
-                    initial_price = self.stock_initial_prices[position.symbol]
-                    if current_price < 0.85 * initial_price:
-                        self.sell_stock(position.symbol, position.qty)
-                    elif current_price > 1.10 * initial_price:
-                        self.buy_more_stock(position.symbol)
-                time.sleep(1800)  # Check every 30 minutes
+        while True:
+            positions = self.alpaca.list_positions()
+            for position in positions:
+                current_price = float(position.current_price)
+                initial_price = self.stock_initial_prices[position.symbol]
+                if current_price < 0.85 * initial_price:
+                    self.sell_stock(position.symbol, position.qty)
+                elif current_price > 1.10 * initial_price:
+                    self.buy_more_stock(position.symbol)
+            time.sleep(1800)  # Check every 30 minutes
 
     def sell_stock(self, symbol, qty):
         self.alpaca.submit_order(
