@@ -140,8 +140,8 @@ class BuyHold():
                                                 time_in_force = TimeInForce.DAY,
                                                 client_order_id = None,)
                     
-                    res = trade_client.submit_order(req)
-                    res
+                        res = trade_client.submit_order(req)
+                        res
 
                 else:
                     for position in positions:
