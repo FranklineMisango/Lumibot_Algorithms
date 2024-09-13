@@ -19,6 +19,7 @@ from alpaca.trading.client import TradingClient
 import schedule
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+import pytz
 
 
 from dotenv import load_dotenv
@@ -36,16 +37,19 @@ trade_api_url = None
 trade_client = TradingClient(api_key=API_KEY, secret_key=API_SECRET, paper=paper, url_override=trade_api_url)
 
 #
+
 def awaitMarketOpen(self):
+    nyc = pytz.timezone('America/New_York')
+    isOpen = self.alpaca.get_clock().is_open
+    while not isOpen:
+        clock = self.alpaca.get_clock()
+        openingTime = clock.next_open.astimezone(nyc).timestamp()
+        currTime = datetime.now(nyc).timestamp()
+        timeToOpen = int((openingTime - currTime) / 60)
+        print(f"{timeToOpen} minutes til market open.")
+        time.sleep(60)
         isOpen = self.alpaca.get_clock().is_open
-        while not isOpen:
-            clock = self.alpaca.get_clock()
-            openingTime = clock.next_open.replace(tzinfo=datetime.timezone.utc).timestamp()
-            currTime = clock.timestamp.replace(tzinfo=datetime.timezone.utc).timestamp()
-            timeToOpen = int((openingTime - currTime) / 60)
-            print(f"{timeToOpen} minutes til market open.")
-            time.sleep(60)
-            isOpen = self.alpaca.get_clock().is_open
+    self.send_email("Market Opened", "The market has opened.")
 
 def market_close(minutes=0):
     def job():
