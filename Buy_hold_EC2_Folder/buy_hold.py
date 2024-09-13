@@ -18,7 +18,7 @@ from datetime import datetime as dt
 from alpaca.trading.client import TradingClient
 import schedule
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
+import datetime
 import pytz
 
 
@@ -43,10 +43,10 @@ def awaitMarketOpen(self):
     isOpen = self.alpaca.get_clock().is_open
     while not isOpen:
         clock = self.alpaca.get_clock()
-        openingTime = clock.next_open.astimezone(nyc).timestamp()
-        currTime = datetime.now(nyc).timestamp()
+        openingTime = clock.next_open.replace(tzinfo=datetime.timezone.utc).timestamp()
+        currTime = clock.timestamp.replace(tzinfo=datetime.timezone.utc).timestamp()
         timeToOpen = int((openingTime - currTime) / 60)
-        print(f"{timeToOpen} minutes til market open.")
+        print(f"{timeToOpen} minutes till market open.")
         time.sleep(60)
         isOpen = self.alpaca.get_clock().is_open
     self.send_email("Market Opened", "The market has opened.")
@@ -100,20 +100,7 @@ class BuyHold(Strategy):
         schedule.every().day.at("15:45").do(self.check_market_close)
         schedule.every().day.at("16:00").do(self.check_market_close)
         schedule.every(30).minutes.do(self.update_portfolio)
-    def run(self):
-            self.log_portfolio("start")
-            orders = self.alpaca.list_orders(status="open")
-            for order in orders:
-                self.alpaca.list_orders(order.id)
-            print("Waiting for market to open...")
-            tAMO = threading.Thread(target=self.awaitMarketOpen)
-            tAMO.start()
-            tAMO.join()
-            print("Market opened.")
-            self.send_email("Market Opened", "The market has opened.")
-            self.stock_initial_prices = self.get_initial_prices()
-            self.monitor_prices()
-
+    
     def awaitMarketOpen(self):
         isOpen = self.alpaca.get_clock().is_open
         while not isOpen:
@@ -125,6 +112,25 @@ class BuyHold(Strategy):
             time.sleep(60)
             isOpen = self.alpaca.get_clock().is_open
         self.send_email("Market Opened", "The market has opened.")
+
+    def run(self):
+        self.log_portfolio("start")
+        orders = self.alpaca.list_orders(status="open")
+        for order in orders:
+            self.alpaca.list_orders(order.id)
+        print("Waiting for market to open...")
+        tAMO = threading.Thread(target=self.awaitMarketOpen)
+        tAMO.start()
+        tAMO.join()
+        print("Market opened.")
+        self.send_email("Market Opened", "The market has opened.")
+        self.stock_initial_prices = self.get_initial_prices()
+        self.monitor_prices()
+
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+
     
     def log_portfolio(self, time_of_day):
         positions = self.alpaca.list_positions()
