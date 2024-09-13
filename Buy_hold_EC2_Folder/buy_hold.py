@@ -53,7 +53,6 @@ class BuyHold(Strategy):
         self.stock_initial_prices = {}
         self.monitoring_thread = threading.Thread(target=self.monitor_prices)
         self.monitoring_thread.daemon = True  # Ensure thread exits when main program exits
-        self.first_iteration = True  # Define as a regular instance variable
 
     def awaitMarketOpen(self):
         nyc = pytz.timezone('America/New_York')
