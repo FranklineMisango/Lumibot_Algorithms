@@ -36,9 +36,6 @@ paper = True
 trade_api_url = None
 trade_client = TradingClient(api_key=API_KEY, secret_key=API_SECRET, paper=paper, url_override=trade_api_url)
 
-#
-
-
 # Populate the ALPACA_CONFIG dictionary
 ALPACA_CONFIG = {
     'API_KEY': os.environ.get('APCA_API_KEY_ID'),
@@ -46,17 +43,17 @@ ALPACA_CONFIG = {
     'BASE_URL': os.environ.get('BASE_URL')
 }
 
-
 class BuyHold(Strategy):
 
     def __init__(self):
-            self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
-            self.initial_portfolio_value = 0
-            self.end_of_day_portfolio_value = 0
-            self.start_of_day_portfolio_value = 0
-            self.stock_initial_prices = {}
-            self.monitoring_thread = threading.Thread(target=self.monitor_prices)
-            self.monitoring_thread.daemon = True  # Ensure thread exits when main program exits
+        self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
+        self.initial_portfolio_value = 0
+        self.end_of_day_portfolio_value = 0
+        self.start_of_day_portfolio_value = 0
+        self.stock_initial_prices = {}
+        self.monitoring_thread = threading.Thread(target=self.monitor_prices)
+        self.monitoring_thread.daemon = True  # Ensure thread exits when main program exits
+        self.first_iteration = True
 
     def awaitMarketOpen(self):
         nyc = pytz.timezone('America/New_York')
@@ -71,48 +68,88 @@ class BuyHold(Strategy):
             isOpen = self.alpaca.get_clock().is_open
         self.send_email("Market Opened", "The market has opened.")
 
-    def market_close(minutes=0):
-        def job():
-            now = datetime.now()
-            market_close_time = now.replace(hour=16, minute=0, second=0, microsecond=0) - timedelta(minutes=minutes)
-            if now >= market_close_time:
-                return True
-            return False
-        return job
+    def get_positions_with_retries(self, retries=3, backoff_in_seconds=3):
+        for i in range(retries):
+            try:
+                positions = self.alpaca.list_positions()
+                return positions
+            except HTTPError as e:
+                if i < retries - 1:
+                    time.sleep(backoff_in_seconds * (2 ** i))  # Exponential backoff
+                else:
+                    raise e
 
-    def every_30_minutes():
-        def job():
-            return True
-        return job
+    def monitor_prices(self):
+        while True:
+            try:
+                positions = self.get_positions_with_retries()
+                if not positions:
+                    print("No positions found. Placing the first trade.")
+                    self.on_trading_iteration()
+                else:
+                    for position in positions:
+                        current_price = float(position.current_price)
+                        initial_price = self.stock_initial_prices.get(position.symbol, current_price)
+                        if current_price < 0.85 * initial_price:
+                            self.sell_stock(position.symbol, position.qty)
+                        elif current_price > 1.10 * initial_price:
+                            self.buy_more_stock(position.symbol)
+            except Exception as e:
+                print(f"Error fetching positions: {e}")
+            time.sleep(300)  # Check every 5 minutes
 
-
-    def log_portfolio(self, time_of_day):
-            positions = self.alpaca.list_positions()
-            with open(f'portfolio_{time_of_day}.csv', mode='w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(["Symbol", "Qty", "Side"])
-                for position in positions:
-                    writer.writerow([position.symbol, position.qty, position.side])
-
-    def initialize(self):
-        self.sleeptime = "1D"
-        self.set_cash = 3000000  # Set initial cash balance
-        self.start_of_day_portfolio_value = self.get_portfolio_value()
-        schedule.every().day.at("15:45").do(self.check_market_close)
-        schedule.every().day.at("16:00").do(self.check_market_close)
-        schedule.every(30).minutes.do(self.update_portfolio)
-    
-    def awaitMarketOpen(self):
-        isOpen = self.alpaca.get_clock().is_open
-        while not isOpen:
-            clock = self.alpaca.get_clock()
-            openingTime = clock.next_open.replace(tzinfo=datetime.timezone.utc).timestamp()
-            currTime = clock.timestamp.replace(tzinfo=datetime.timezone.utc).timestamp()
-            timeToOpen = int((openingTime - currTime) / 60)
-            print(f"{timeToOpen} minutes til market open.")
-            time.sleep(60)
-            isOpen = self.alpaca.get_clock().is_open
-        self.send_email("Market Opened", "The market has opened.")
+    def on_trading_iteration(self):
+        if self.first_iteration:
+            stocks_and_quantities = [
+                {"symbol": "AAPL", "quantity": 4224},
+                {"symbol": "BAC", "quantity": 9742},
+                {"symbol": "AXP", "quantity": 1261},
+                {"symbol": "KO", "quantity": 4191},
+                {"symbol": "CVX", "quantity": 1393},
+                {"symbol": "OXY", "quantity": 3215},
+                {"symbol": "KHC", "quantity": 3150},
+                {"symbol": "MCO", "quantity": 185},
+                {"symbol": "CB", "quantity": 328},
+                {"symbol": "DVA", "quantity": 442},
+                {"symbol": "C", "quantity": 521},
+                {"symbol": "KR", "quantity": 479},
+                {"symbol": "SIRI", "quantity": 935},
+                {"symbol": "V", "quantity": 84},
+                {"symbol": "VRSN", "quantity": 108},
+                {"symbol": "MA", "quantity": 36},
+                {"symbol": "AMZN", "quantity": 96},
+                {"symbol": "NU", "quantity": 1027},
+                {"symbol": "AON", "quantity": 43},
+                {"symbol": "COF", "quantity": 86},
+                {"symbol": "CHTR", "quantity": 33},
+                {"symbol": "ALLY", "quantity": 48},
+                {"symbol": "TMUS", "quantity": 44},
+                {"symbol": "FWONK", "quantity": 50},
+                {"symbol": "LPX", "quantity": 63},
+                {"symbol": "LLYVK", "quantity": 47},
+                {"symbol": "FND", "quantity": 23},
+                {"symbol": "ULTA", "quantity": 8},
+                {"symbol": "HEI.A", "quantity": 9},
+                {"symbol": "LLYVA", "quantity": 71},
+                {"symbol": "NVR", "quantity": 0},
+                {"symbol": "DEO", "quantity": 6},
+                {"symbol": "LEN.B", "quantity": 8},
+                {"symbol": "JEF", "quantity": 20},
+                {"symbol": "LILA", "quantity": 158},
+                {"symbol": "VOO", "quantity": 2},
+                {"symbol": "SPY", "quantity": 2},
+                {"symbol": "LILAK", "quantity": 114},
+                {"symbol": "BATRK", "quantity": 22},
+            ]
+            for stock_info in stocks_and_quantities:
+                symbol = stock_info["symbol"]
+                quantity = stock_info["quantity"]
+                price = self.get_last_price(symbol)
+                cost = price * quantity
+                if self.cash >= cost:
+                    order = self.create_order(symbol, quantity, "buy")
+                    self.submit_order(order)
+            self.first_iteration = False
 
     def run(self):
         self.log_portfolio("start")
@@ -134,7 +171,6 @@ class BuyHold(Strategy):
             schedule.run_pending()
             time.sleep(1)
 
-    
     def log_portfolio(self, time_of_day):
         positions = self.alpaca.list_positions()
         with open(f'portfolio_{time_of_day}.csv', mode='w', newline='') as file:
@@ -153,18 +189,6 @@ class BuyHold(Strategy):
         for position in positions:
             initial_prices[position.symbol] = float(position.current_price)
         return initial_prices
-
-    def monitor_prices(self):
-        while True:
-            positions = self.alpaca.list_positions()
-            for position in positions:
-                current_price = float(position.current_price)
-                initial_price = self.stock_initial_prices[position.symbol]
-                if current_price < 0.85 * initial_price:
-                    self.sell_stock(position.symbol, position.qty)
-                elif current_price > 1.10 * initial_price:
-                    self.buy_more_stock(position.symbol)
-         
 
     def sell_stock(self, symbol, qty):
         self.alpaca.submit_order(
@@ -229,66 +253,12 @@ class BuyHold(Strategy):
         self.log_portfolio("update")
         self.send_email("Portfolio Update", "Attached is the latest portfolio update.", f'portfolio_update.csv')
 
-    def on_trading_iteration(self):
-        if self.first_iteration:
-            stocks_and_quantities = [
-                    {"symbol": "AAPL", "quantity": 4224},
-                    {"symbol": "BAC", "quantity": 9742},
-                    {"symbol": "AXP", "quantity": 1261},
-                    {"symbol": "KO", "quantity": 4191},
-                    {"symbol": "CVX", "quantity": 1393},
-                    {"symbol": "OXY", "quantity": 3215},
-                    {"symbol": "KHC", "quantity": 3150},
-                    {"symbol": "MCO", "quantity": 185},
-                    {"symbol": "CB", "quantity": 328},
-                    {"symbol": "DVA", "quantity": 442},
-                    {"symbol": "C", "quantity": 521},
-                    {"symbol": "KR", "quantity": 479},
-                    {"symbol": "SIRI", "quantity": 935},
-                    {"symbol": "V", "quantity": 84},
-                    {"symbol": "VRSN", "quantity": 108},
-                    {"symbol": "MA", "quantity": 36},
-                    {"symbol": "AMZN", "quantity": 96},
-                    {"symbol": "NU", "quantity": 1027},
-                    {"symbol": "AON", "quantity": 43},
-                    {"symbol": "COF", "quantity": 86},
-                    {"symbol": "CHTR", "quantity": 33},
-                    {"symbol": "ALLY", "quantity": 48},
-                    {"symbol": "TMUS", "quantity": 44},
-                    {"symbol": "FWONK", "quantity": 50},
-                    {"symbol": "LPX", "quantity": 63},
-                    {"symbol": "LLYVK", "quantity": 47},
-                    {"symbol": "FND", "quantity": 23},
-                    {"symbol": "ULTA", "quantity": 8},
-                    {"symbol": "HEI.A", "quantity": 9},
-                    {"symbol": "LLYVA", "quantity": 71},
-                    {"symbol": "NVR", "quantity": 0},
-                    {"symbol": "DEO", "quantity": 6},
-                    {"symbol": "LEN.B", "quantity": 8},
-                    {"symbol": "JEF", "quantity": 20},
-                    {"symbol": "LILA", "quantity": 158},
-                    {"symbol": "VOO", "quantity": 2},
-                    {"symbol": "SPY", "quantity": 2},
-                    {"symbol": "LILAK", "quantity": 114},
-                    {"symbol": "BATRK", "quantity": 22},
-                ]
-            for stock_info in stocks_and_quantities:
-                symbol = stock_info["symbol"]
-                quantity = stock_info["quantity"]
-                price = self.get_last_price(symbol)
-                cost = price * quantity
-                if self.cash >= cost:
-                    order = self.create_order(symbol, quantity, "buy")
-                    self.submit_order(order)
-
-
 if __name__ == "__main__":
     live = True
     if live : 
         strategy = BuyHold()
         strategy.initialize()
         strategy.run()
-
     else:
         start = dt(2020, 1, 1)  # Convert start_date to datetime
         end = dt(2024, 8, 31)  # Convert end_date to datetime
