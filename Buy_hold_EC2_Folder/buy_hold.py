@@ -16,11 +16,11 @@ import time
 import threading
 from datetime import datetime as dt
 from alpaca.trading.client import TradingClient
-
+import schedule
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
-
+S
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -94,10 +94,9 @@ class BuyHold(Strategy):
         self.sleeptime = "1D"
         self.set_cash = 3000000  # Set initial cash balance
         self.start_of_day_portfolio_value = self.get_portfolio_value()
-        self.schedule_function(self.check_market_close, date_rule=market_close(minutes=15))
-        self.schedule_function(self.check_market_close, date_rule=market_close())
-        self.schedule_function(self.update_portfolio, date_rule=every_30_minutes())
-
+        schedule.every().day.at("15:45").do(self.check_market_close)
+        schedule.every().day.at("16:00").do(self.check_market_close)
+        schedule.every(30).minutes.do(self.update_portfolio)
     def run(self):
             self.log_portfolio("start")
             orders = self.alpaca.list_orders(status="open")
