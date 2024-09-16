@@ -63,7 +63,6 @@ class LongShort:
         #TODO - Add more stocks to the stockUniverse with diverse leverage
 
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
-        '''
         stockUniverse =     ['AAPL', 'MSFT', 'NVDA', 'GOOG', 'META', 'ADBE', 'CSCO', 'CRM', 'INTC', 'ORCL', 
                             'JPM', 'BAC', 'GS', 'MS', 'C', 'WFC', 'AXP', 'BLK', 'SCHW', 'SPGI',
                             'JNJ', 'PFE', 'UNH', 'ABT', 'MRK', 'AMGN', 'TMO', 'GILD', 'CVS', 'MDT',
@@ -74,17 +73,6 @@ class LongShort:
                             'XOM', 'CVX', 'BP', 'SLB', 'EOG', 'OXY', 'PXD', 'VLO', 'KMI', 'PSX',
                             'NEE', 'DUK', 'SO', 'D', 'EXC', 'SRE', 'AEP', 'ED', 'PCG', 'XEL',
                             'AMT', 'PLD', 'SPG', 'EQIX', 'O', 'VTR', 'DRE', 'AVB', 'PSA', 'WPC']
-        '''
-        # Load all tickers from the global folder
-        stockUniverse = glob.glob('Tickers/*')
-        tickers = []
-        for file in stockUniverse:
-            with open(file, 'r') as f:
-                stockUniverse = f.read().upper().split()
-                print(f"Tickers from {file}: {stockUniverse}")  # Debug print
-                tickers.extend(stockUniverse)
-
-        stockUniverse = ''
         self.allStocks = [[stock, 0] for stock in stockUniverse]
         self.long = []
         self.short = []
