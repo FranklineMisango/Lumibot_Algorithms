@@ -86,7 +86,7 @@ class LongShort:
 
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
         
-        stockUniverse =     ['AAPL', 'MSFT', 'NVDA', 'GOOG', 'META', 'ADBE', 'CSCO', 'CRM', 'INTC', 'ORCL' 
+        stockUniverse =     ['AAPL', 'MSFT', 'NVDA', 'GOOG', 'META', 'ADBE', 'CSCO', 'CRM', 'INTC', 'ORCL', 
                             'JPM', 'BAC', 'GS', 'MS', 'C', 'WFC', 'AXP', 'BLK', 'SCHW', 'SPGI',
                             'JNJ', 'PFE', 'UNH', 'ABT', 'MRK', 'AMGN', 'TMO', 'GILD', 'CVS', 'MDT',
                             'AMZN', 'TSLA', 'NKE', 'MCD', 'HD', 'LOW', 'DIS', 'SBUX', 'NFLX', 'PCLN',
