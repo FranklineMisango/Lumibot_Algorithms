@@ -119,7 +119,7 @@ class BuyHold():
                                     {"symbol": "ULTA", "quantity": 5},
                                     {"symbol": "HEI.A", "quantity": 6},
                                     {"symbol": "LLYVA", "quantity": 48},
-                                    {"symbol": "NVR", "quantity": 0},
+                                    {"symbol": "NVR", "quantity": 3.5},
                                     {"symbol": "DEO", "quantity": 4},
                                     {"symbol": "LEN.B", "quantity": 5},
                                     {"symbol": "JEF", "quantity": 13},
