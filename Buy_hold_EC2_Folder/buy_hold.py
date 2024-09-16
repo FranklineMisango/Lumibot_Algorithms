@@ -89,60 +89,59 @@ class BuyHold():
                 if not positions:
                     print("No positions found. Placing the first trade.")
                     stocks_and_quantities = [
-                                    {"symbol": "AAPL", "quantity": 2816},
-                                    {"symbol": "BAC", "quantity": 6495},
-                                    {"symbol": "AXP", "quantity": 840},
-                                    {"symbol": "KO", "quantity": 2794},
-                                    {"symbol": "CVX", "quantity": 929},
-                                    {"symbol": "OXY", "quantity": 2143},
-                                    {"symbol": "KHC", "quantity": 2100},
-                                    {"symbol": "MCO", "quantity": 123},
-                                    {"symbol": "CB", "quantity": 219},
-                                    {"symbol": "DVA", "quantity": 295},
-                                    {"symbol": "C", "quantity": 347},
-                                    {"symbol": "KR", "quantity": 319},
-                                    {"symbol": "SIRI", "quantity": 623},
-                                    {"symbol": "V", "quantity": 56},
-                                    {"symbol": "VRSN", "quantity": 72},
-                                    {"symbol": "MA", "quantity": 24},
-                                    {"symbol": "AMZN", "quantity": 64},
-                                    {"symbol": "NU", "quantity": 685},
-                                    {"symbol": "AON", "quantity": 29},
-                                    {"symbol": "COF", "quantity": 57},
-                                    {"symbol": "CHTR", "quantity": 22},
-                                    {"symbol": "ALLY", "quantity": 32},
-                                    {"symbol": "TMUS", "quantity": 29},
-                                    {"symbol": "FWONK", "quantity": 33},
-                                    {"symbol": "LPX", "quantity": 42},
-                                    {"symbol": "LLYVK", "quantity": 31},
-                                    {"symbol": "FND", "quantity": 16},
-                                    {"symbol": "ULTA", "quantity": 5},
-                                    {"symbol": "HEI.A", "quantity": 6},
-                                    {"symbol": "LLYVA", "quantity": 48},
-                                    {"symbol": "NVR", "quantity": 3.5},
-                                    {"symbol": "DEO", "quantity": 4},
-                                    {"symbol": "LEN.B", "quantity": 5},
-                                    {"symbol": "JEF", "quantity": 13},
-                                    {"symbol": "LILA", "quantity": 105},
-                                    {"symbol": "VOO", "quantity": 2},
-                                    {"symbol": "SPY", "quantity": 1},
-                                    {"symbol": "LILAK", "quantity": 76},
-                                    {"symbol": "BATRK", "quantity": 15},
-                                ]
+                        {"symbol": "AAPL", "quantity": 2816},
+                        {"symbol": "BAC", "quantity": 6495},
+                        {"symbol": "AXP", "quantity": 840},
+                        {"symbol": "KO", "quantity": 2794},
+                        {"symbol": "CVX", "quantity": 929},
+                        {"symbol": "OXY", "quantity": 2143},
+                        {"symbol": "KHC", "quantity": 2100},
+                        {"symbol": "MCO", "quantity": 123},
+                        {"symbol": "CB", "quantity": 219},
+                        {"symbol": "DVA", "quantity": 295},
+                        {"symbol": "C", "quantity": 347},
+                        {"symbol": "KR", "quantity": 319},
+                        {"symbol": "SIRI", "quantity": 623},
+                        {"symbol": "V", "quantity": 56},
+                        {"symbol": "VRSN", "quantity": 72},
+                        {"symbol": "MA", "quantity": 24},
+                        {"symbol": "AMZN", "quantity": 64},
+                        {"symbol": "NU", "quantity": 685},
+                        {"symbol": "AON", "quantity": 29},
+                        {"symbol": "COF", "quantity": 57},
+                        {"symbol": "CHTR", "quantity": 22},
+                        {"symbol": "ALLY", "quantity": 32},
+                        {"symbol": "TMUS", "quantity": 29},
+                        {"symbol": "FWONK", "quantity": 33},
+                        {"symbol": "LPX", "quantity": 42},
+                        {"symbol": "LLYVK", "quantity": 31},
+                        {"symbol": "FND", "quantity": 16},
+                        {"symbol": "ULTA", "quantity": 5},
+                        {"symbol": "HEI.A", "quantity": 6},
+                        {"symbol": "LLYVA", "quantity": 48},
+                        {"symbol": "NVR", "quantity": 0},
+                        {"symbol": "DEO", "quantity": 4},
+                        {"symbol": "LEN.B", "quantity": 5},
+                        {"symbol": "JEF", "quantity": 13},
+                        {"symbol": "LILA", "quantity": 105},
+                        {"symbol": "VOO", "quantity": 2},
+                        {"symbol": "SPY", "quantity": 1},
+                        {"symbol": "LILAK", "quantity": 76},
+                        {"symbol": "BATRK", "quantity": 15},
+                    ]
                     for stock_info in stocks_and_quantities:
                         symbol = stock_info["symbol"]
                         quantity = stock_info["quantity"]
-                        req = MarketOrderRequest (
-                                                symbol = symbol, 
-                                                qty = quantity,
-                                                side = OrderSide.BUY,
-                                                type = OrderType.MARKET,
-                                                time_in_force = TimeInForce.DAY,
-                                                client_order_id = None,)
-                    
+                        req = MarketOrderRequest(
+                            symbol=symbol,
+                            qty=quantity,
+                            side=OrderSide.BUY,
+                            type=OrderType.MARKET,
+                            time_in_force=TimeInForce.DAY,
+                            client_order_id=None,
+                        )
                         res = trade_client.submit_order(req)
-                        res
-
+                        print(f"Placed order for {quantity} shares of {symbol}.")
                 else:
                     for position in positions:
                         current_price = float(position.current_price)
@@ -151,7 +150,6 @@ class BuyHold():
                             self.sell_stock(position.symbol, position.qty)
                         elif current_price > 1.10 * initial_price:
                             self.buy_more_stock(position.symbol)
-            
             except Exception as e:
                 print(f"Error fetching positions: {e}")
             time.sleep(300)  # Check every 5 minutes
@@ -260,7 +258,7 @@ class BuyHold():
 
 if __name__ == "__main__":
     live = True
-    if live : 
+    if live:
         bs = BuyHold()
         bs.run()
     else:
