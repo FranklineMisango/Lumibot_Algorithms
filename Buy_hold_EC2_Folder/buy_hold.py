@@ -53,10 +53,11 @@ class BuyHold():
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
         self.initial_portfolio_value = 0
         self.end_of_day_portfolio_value = 0
-        self.start_of_day_portfolio_value = 0
+        self.start_of_day_portfolio_value = float(equity)
         self.stock_initial_prices = {}
         self.monitoring_thread = threading.Thread(target=self.monitor_prices)
         self.monitoring_thread.daemon = True  # Ensure thread exits when main program exits
+        equity = self.alpaca.get_account().equity
 
     def awaitMarketOpen(self):
         nyc = pytz.timezone('America/New_York')
@@ -76,7 +77,7 @@ class BuyHold():
             try:
                 positions = self.alpaca.list_positions()
                 return positions
-            except HTTPError as e:
+            except 'HTTPError' as e:
                 if i < retries - 1:
                     time.sleep(backoff_in_seconds * (2 ** i))  # Exponential backoff
                 else:
