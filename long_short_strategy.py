@@ -67,17 +67,52 @@ class LongShort:
 
         #TODO - Add more stocks to the stockUniverse with diverse leverage
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
-        stockUniverse =     ['AAPL', 'MSFT', 'NVDA', 'GOOG', 'META', 'ADBE', 'CSCO', 'CRM', 'INTC', 'ORCL', 
-                            'JPM', 'BAC', 'GS', 'MS', 'C', 'WFC', 'AXP', 'BLK', 'SCHW', 'SPGI', '   PGNY', 'XCH', 'DRMA'
-                            'JNJ', 'PFE', 'UNH', 'ABT', 'MRK', 'AMGN', 'TMO', 'GILD', 'CVS', 'MDT', 'VVOS', 'GLXG', 'SCNI', 'FDMT', 'SGLY', 
-                            'OMEX', 'INBS', 'KSPI', 'HCWC', 'TRIB', 'FUFU', 'MNY', 'MNY', 'NEON', 'BBLG', 'FANH', 'SNOA', 'YIBO'
-                            'AMZN', 'TSLA', 'NKE', 'MCD', 'HD', 'LOW', 'DIS', 'SBUX', 'NFLX', 'PCLN','T', 'VZ', 'CMCSA', 'ATVI', 'TTWO', 'SNAP',
-                            'BA', 'CAT', 'HON', 'GE', 'LMT', 'UPS', 'RTX', 'MMM', 'DE', 'NOC', 'EWTX', 'MBLY', 'AUR', 'MSTR', 'XPEV', 'BEKE', 'TAL'
-                            'NIO', 'W', 'UEC', 'JD', 'COHR', 'PYPL', 'AMD', 'AMAT', 'CVNA', 'CRM', 'TSM', 'C', 'ABNB', 'VRT','LUMN'
-                            'PG', 'KO', 'PEP', 'WMT', 'COST', 'CAG', 'MDLZ', 'CL', 'SJM', 'GIS',
-                            'XOM', 'CVX', 'BP', 'SLB', 'EOG', 'OXY', 'PXD', 'VLO', 'KMI', 'PSX',
-                            'NEE', 'DUK', 'SO', 'D', 'EXC', 'SRE', 'AEP', 'ED', 'PCG', 'XEL',
-                            'AMT', 'PLD', 'SPG', 'EQIX', 'O', 'VTR', 'DRE', 'AVB', 'PSA', 'WPC']
+        '''Test with more liquidity stocks
+        stockUniverse = ['AAPL', 'MSFT', 'NVDA', 'GOOG', 'META', 'ADBE', 'CSCO', 'CRM', 'INTC', 'ORCL', 
+                 'JPM', 'BAC', 'GS', 'MS', 'C', 'WFC', 'AXP', 'BLK', 'SCHW', 'SPGI', 'PGNY', 'XCH', 'DRMA',
+                 'JNJ', 'PFE', 'UNH', 'ABT', 'MRK', 'AMGN', 'TMO', 'GILD', 'CVS', 'MDT', 'VVOS', 'GLXG', 'SCNI', 'FDMT', 'SGLY', 
+                 'OMEX', 'INBS', 'KSPI', 'HCWC', 'TRIB', 'FUFU', 'MNY', 'MNY', 'NEON', 'BBLG', 'FANH', 'SNOA', 'YIBO',
+                 'AMZN', 'TSLA', 'NKE', 'MCD', 'HD', 'LOW', 'DIS', 'SBUX', 'NFLX', 'PCLN', 'T', 'VZ', 'CMCSA', 'ATVI', 'TTWO', 'SNAP',
+                 'BA', 'CAT', 'HON', 'GE', 'LMT', 'UPS', 'RTX', 'MMM', 'DE', 'NOC', 'EWTX', 'MBLY', 'AUR', 'MSTR', 'XPEV', 'BEKE', 'TAL',
+                 'NIO', 'W', 'UEC', 'JD', 'COHR', 'PYPL', 'AMD', 'AMAT', 'CVNA', 'CRM', 'TSM', 'C', 'ABNB', 'VRT', 'LUMN',
+                 'PG', 'KO', 'PEP', 'WMT', 'COST', 'CAG', 'MDLZ', 'CL', 'SJM', 'GIS',
+                 'XOM', 'CVX', 'BP', 'SLB', 'EOG', 'OXY', 'PXD', 'VLO', 'KMI', 'PSX',
+                 'NEE', 'DUK', 'SO', 'D', 'EXC', 'SRE', 'AEP', 'ED', 'PCG', 'XEL',
+                 'AMT', 'PLD', 'SPG', 'EQIX', 'O', 'VTR', 'DRE', 'AVB', 'PSA', 'WPC']
+        '''
+
+        stockUniverse = [
+                # Technology
+                'AAPL', 'MSFT', 'NVDA', 'GOOG', 'META',
+                
+                # Financials
+                'JPM', 'BAC', 'GS', 'MS', 'C',
+                
+                # Healthcare
+                'JNJ', 'PFE', 'UNH', 'ABT', 'MRK',
+                
+                # Consumer Discretionary
+                'AMZN', 'TSLA', 'NKE', 'MCD', 'HD',
+                
+                # Consumer Staples
+                'PG', 'KO', 'PEP', 'WMT', 'COST',
+                
+                # Energy
+                'XOM', 'CVX', 'BP', 'SLB', 'EOG',
+                
+                # Industrials
+                'BA', 'CAT', 'HON', 'GE', 'LMT',
+                
+                # Communication Services
+                'DIS', 'CMCSA', 'NFLX', 'T', 'VZ',
+                
+                # Real Estate
+                'AMT', 'PLD', 'SPG', 'EQIX', 'O',
+                
+                # Utilities
+                'NEE', 'DUK', 'SO', 'D', 'EXC'
+            ]
+
         
         self.allStocks = [[stock, 0] for stock in stockUniverse]
         self.long = []
