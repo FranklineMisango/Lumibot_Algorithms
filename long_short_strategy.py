@@ -67,6 +67,7 @@ def mail_alert(mail_content, sleep_time):
     message['From'] = 'Frankline & Co. HFT Day Trading Bot'
     message['To'] = EMAIL_RECEIVER
     message['Subject'] = 'Frankline & Co. HFT Important Day Updates'
+    message['Signature'] =  "Your's Truly, Frankline & Co. HFT Day Trading Bot"
     
     # The body and the attachments for the mail
     message.attach(MIMEText(mail_content, 'plain'))
@@ -168,8 +169,6 @@ class LongShort:
                 mail_content = "Market opens in  30 mins."
                 mail_alert(mail_content, 60)
             print(f"{timeToOpen} minutes til market open.")
-            mail_content = " Testing_market_opening alert"
-            mail_alert(mail_content, 60)
             time.sleep(60)
             isOpen = self.alpaca.get_clock().is_open
 
