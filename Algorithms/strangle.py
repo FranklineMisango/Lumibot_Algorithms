@@ -61,7 +61,7 @@ class Strangle(Strategy):
             "BAC",
             "DIS",
             "EEM",
-            "FB",
+            "META",
             "FXI",
             "MSFT",
             "TSLA",
