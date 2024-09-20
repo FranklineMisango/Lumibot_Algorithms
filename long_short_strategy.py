@@ -31,30 +31,7 @@ EMAIL_RECEIVER = os.environ.get('YOUR_EMAIL_ADDRESS')
 #helper functions  to send the emails to the traders 
 
 #Helper functions
-def send_email(self):
-    msg = MIMEMultipart()
-    msg['From'] = 'Frankline & Co. HFT Day Trading Bot'
-    msg['To'] = EMAIL_RECEIVER
-    msg['Subject'] = "Daily Trade Report"
-    body = "Hello Trader, Attached is the Daily trade report from Day Trading."
-    msg.attach(MIMEText(body, 'plain'))
-    filename = "orders.csv"
-    with open(filename, "w", newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["Stock", "Quantity", "Side", "Status"])
-        writer.writerows(self.orders_log)
-    attachment = open(filename, "rb")
-    part = MIMEBase('application', 'octet-stream')
-    part.set_payload(attachment.read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition', f"attachment; filename= {filename}")
-    msg.attach(part)
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(EMAIL_USER, EMAIL_PASSWORD)
-    text = msg.as_string()
-    server.sendmail(EMAIL_USER, EMAIL_RECEIVER, text)
-    server.quit()
+
 
     
 def mail_alert(mail_content, sleep_time):
@@ -67,7 +44,7 @@ def mail_alert(mail_content, sleep_time):
     message['From'] = 'Frankline & Co. HFT Day Trading Bot'
     message['To'] = EMAIL_RECEIVER
     message['Subject'] = 'Frankline & Co. HFT Important Day Updates'
-    message['Signature'] =  "Your's Truly, Frankline & Co. HFT Day Trading Bot"
+    message['Signature'] =  "Making HFT Fun and Profitable"
     
     # The body and the attachments for the mail
     message.attach(MIMEText(mail_content, 'plain'))
@@ -115,7 +92,6 @@ class LongShort:
         self.timeToClose = None
         self.orders_log = []
 
-    
 
     def run(self):
          #TODO - fix the mail_alert function - renest and refactor the function
@@ -129,7 +105,13 @@ class LongShort:
         tAMO.start()
         tAMO.join()
         print("Market opened.")
-        mail_content = 'The bot started running on {} at {} UTC'.format(dt.now().strftime('%Y-%m-%d'), dt.now().strftime('%H:%M:%S'))
+        equity = int(float(self.alpaca.get_account().equity))
+        buying_power = int(float(self.alpaca.get_account().buying_power))
+        initial_total_cash_for_trading = equity + buying_power
+        mail_content = (
+                'The bot started running on {} at {} UTC.\n'
+                'Our Total cash available for Trading is : ${:.2f}'
+            ).format(dt.now().strftime('%Y-%m-%d'), dt.now().strftime('%H:%M:%S'), float(initial_total_cash_for_trading))
         mail_alert(mail_content, 0)
 
         while True:
@@ -147,7 +129,7 @@ class LongShort:
                     tSubmitOrder = threading.Thread(target=self.submitOrder, args=(qty, position.symbol, orderSide, respSO))
                     tSubmitOrder.start()
                     tSubmitOrder.join()
-                print("Sleeping until market close (15 minutes).")
+                print("Sleeping until market closes in 15 minutes.")
                 time.sleep(60 * 15)
                 self.log_portfolio("end")
                 self.send_email()
@@ -166,8 +148,19 @@ class LongShort:
             currTime = clock.timestamp.replace(tzinfo=datetime.timezone.utc).timestamp()
             timeToOpen = int((openingTime - currTime) / 60)
             if timeToOpen == 30:
-                mail_content = "Market opens in  30 mins."
+                # Add buying power and adjust the quantities for equity and stuff
+                self.initial_equity = int(float(self.alpaca.get_account().equity))
+                buying_power = int(float(self.alpaca.get_account().buying_power))
+                initial_total_cash_for_trading = self.initial_equity + buying_power
+
+                # Correcting the string formatting
+                mail_content = (
+                    f'The market opens in 30 minutes. '
+                    f'Our Total cash available Before Trading is: ${initial_total_cash_for_trading:.2f}'
+                )
+
                 mail_alert(mail_content, 60)
+
             print(f"{timeToOpen} minutes til market open.")
             time.sleep(60)
             isOpen = self.alpaca.get_clock().is_open
@@ -385,7 +378,37 @@ class LongShort:
         tGetPC.join()
         self.allStocks.sort(key=lambda x: x[1])
     
-    
+    def send_email(self):
+        msg = MIMEMultipart()
+        msg['From'] = 'Frankline & Co. HFT Day Trading Bot'
+        msg['To'] = EMAIL_RECEIVER
+        msg['Subject'] = "Post-Market Daily Trade Report"
+        msg['Signature'] =  "Making HFT Fun and Profitable"
+        profit = int(float(self.alpaca.get_account().equity)) - self.initial_equity
+        order_count = len(self.orders_log)
+        body = (
+                f"Hello Trader, Attached is the Daily trade report from Day Trading.\n"
+                f"I executed : {order_count} orders.\n\n"
+                f"Our P/L today is : ${profit:.2f}"
+            )
+        msg.attach(MIMEText(body, 'plain'))
+        filename = "HFT_Orders.csv"
+        with open(filename, "w", newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Stock", "Quantity", "Side", "Status"])
+            writer.writerows(self.orders_log)
+        attachment = open(filename, "rb")
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', f"attachment; filename= {filename}")
+        msg.attach(part)
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASSWORD)
+        text = msg.as_string()
+        server.sendmail(EMAIL_USER, EMAIL_RECEIVER, text)
+        server.quit()
 
 # Run the LongShort class
 ls = LongShort()
