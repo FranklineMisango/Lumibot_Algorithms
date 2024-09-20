@@ -168,6 +168,8 @@ class LongShort:
                 mail_content = "Market opens in  30 mins."
                 mail_alert(mail_content, 60)
             print(f"{timeToOpen} minutes til market open.")
+            mail_content = " Testing_market_opening alert"
+            mail_alert(mail_content, 60)
             time.sleep(60)
             isOpen = self.alpaca.get_clock().is_open
 
@@ -287,10 +289,17 @@ class LongShort:
                 self.short.append(stockField[0])
             elif i > (len(self.allStocks) - 1 - longShortAmount):
                 self.long.append(stockField[0])
+
+        #Add buying power and adjust the quantities for equity and stuff 
         equity = int(float(self.alpaca.get_account().equity))
-        self.shortAmount = equity * 0.45
-        self.longAmount = equity - self.shortAmount
+        buying_power = int(float(self.alpaca.get_account().buying_power))
+        total_cash_for_trading = equity + buying_power
+
+        #Long/short ratio of 45/55
+        self.shortAmount = total_cash_for_trading * 0.45
+        self.longAmount = total_cash_for_trading - self.shortAmount
         respGetTPLong = []
+
         thread = threading.Thread(target=self.getTotalPrice, args=(self.long, respGetTPLong))
         thread.start()
         thread.join()
