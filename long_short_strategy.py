@@ -64,6 +64,32 @@ class LongShort:
     
 
     def run(self):
+         #TODO - fix the mail_alert function - renest and refactor 
+        def mail_alert(mail_content, sleep_time):
+                # The mail addresses and password
+                sender_address = EMAIL_USER
+                sender_pass = EMAIL_PASSWORD
+                receiver_address = os.environ.get("YOUR_EMAIL_ADDRESS")
+
+                # Setup MIME
+                message = MIMEMultipart()
+                message['From'] = 'Frankline & Co. HFT Day Trading Bot'
+                message['To'] = receiver_address
+                message['Subject'] = 'Frankline & Co. HFT Important Day Updates'
+                
+                # The body and the attachments for the mail
+                message.attach(MIMEText(mail_content, 'plain'))
+
+                # Create SMTP session for sending the mail
+                session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
+                session.starttls()  # enable security
+
+                # login with mail_id and password
+                session.login(sender_address, sender_pass)
+                text = message.as_string()
+                session.sendmail(sender_address, receiver_address, text)
+                session.quit()
+                time.sleep(sleep_time)
         self.log_portfolio("start")
         orders = self.alpaca.list_orders(status="open")
         for order in orders:
@@ -101,32 +127,6 @@ class LongShort:
                 tRebalance.join()
                 time.sleep(60)
 
-
-    def mail_alert(mail_content, sleep_time):
-            # The mail addresses and password
-            sender_address = EMAIL_USER
-            sender_pass = EMAIL_PASSWORD
-            receiver_address = os.environ.get("YOUR_EMAIL_ADDRESS")
-
-            # Setup MIME
-            message = MIMEMultipart()
-            message['From'] = 'Frankline & Co. HFT Day Trading Bot'
-            message['To'] = receiver_address
-            message['Subject'] = 'Frankline & Co. HFT Important Day Updates'
-            
-            # The body and the attachments for the mail
-            message.attach(MIMEText(mail_content, 'plain'))
-
-            # Create SMTP session for sending the mail
-            session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
-            session.starttls()  # enable security
-
-            # login with mail_id and password
-            session.login(sender_address, sender_pass)
-            text = message.as_string()
-            session.sendmail(sender_address, receiver_address, text)
-            session.quit()
-            time.sleep(sleep_time)
         
     def awaitMarketOpen(self):
         isOpen = self.alpaca.get_clock().is_open
@@ -347,29 +347,29 @@ class LongShort:
     
     #Helper functions
     def send_email(self):
-            msg = MIMEMultipart()
-            msg['From'] = 'Frankline & Co. HFT Day Trading Bot'
-            msg['To'] = EMAIL_RECEIVER
-            msg['Subject'] = "Daily Trade Report"
-            body = "Hello Trader, Attached is the Daily trade report from Day Trading."
-            msg.attach(MIMEText(body, 'plain'))
-            filename = "orders.csv"
-            with open(filename, "w", newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(["Stock", "Quantity", "Side", "Status"])
-                writer.writerows(self.orders_log)
-            attachment = open(filename, "rb")
-            part = MIMEBase('application', 'octet-stream')
-            part.set_payload(attachment.read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', f"attachment; filename= {filename}")
-            msg.attach(part)
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(EMAIL_USER, EMAIL_PASSWORD)
-            text = msg.as_string()
-            server.sendmail(EMAIL_USER, EMAIL_RECEIVER, text)
-            server.quit()
+        msg = MIMEMultipart()
+        msg['From'] = 'Frankline & Co. HFT Day Trading Bot'
+        msg['To'] = EMAIL_RECEIVER
+        msg['Subject'] = "Daily Trade Report"
+        body = "Hello Trader, Attached is the Daily trade report from Day Trading."
+        msg.attach(MIMEText(body, 'plain'))
+        filename = "orders.csv"
+        with open(filename, "w", newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Stock", "Quantity", "Side", "Status"])
+            writer.writerows(self.orders_log)
+        attachment = open(filename, "rb")
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', f"attachment; filename= {filename}")
+        msg.attach(part)
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASSWORD)
+        text = msg.as_string()
+        server.sendmail(EMAIL_USER, EMAIL_RECEIVER, text)
+        server.quit()
         
    
 
