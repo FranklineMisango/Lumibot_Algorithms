@@ -30,32 +30,6 @@ EMAIL_RECEIVER = os.environ.get('YOUR_EMAIL_ADDRESS')
 
 #helper 
 
-def mail_alert(mail_content, sleep_time):
-        # The mail addresses and password
-        sender_address = EMAIL_USER
-        sender_pass = EMAIL_PASSWORD
-        receiver_address = os.environ.get("YOUR_EMAIL_ADDRESS")
-
-        # Setup MIME
-        message = MIMEMultipart()
-        message['From'] = 'Frankline & Co. HFT Day Trading Bot'
-        message['To'] = receiver_address
-        message['Subject'] = 'Frankline & Co. HFT Important Day Updates'
-        
-        # The body and the attachments for the mail
-        message.attach(MIMEText(mail_content, 'plain'))
-
-        # Create SMTP session for sending the mail
-        session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
-        session.starttls()  # enable security
-
-        # login with mail_id and password
-        session.login(sender_address, sender_pass)
-        text = message.as_string()
-        session.sendmail(sender_address, receiver_address, text)
-        session.quit()
-        time.sleep(sleep_time)
-    
 
 class LongShort:
     def __init__(self):
@@ -73,6 +47,7 @@ class LongShort:
                             'XOM', 'CVX', 'BP', 'SLB', 'EOG', 'OXY', 'PXD', 'VLO', 'KMI', 'PSX',
                             'NEE', 'DUK', 'SO', 'D', 'EXC', 'SRE', 'AEP', 'ED', 'PCG', 'XEL',
                             'AMT', 'PLD', 'SPG', 'EQIX', 'O', 'VTR', 'DRE', 'AVB', 'PSA', 'WPC']
+        
         self.allStocks = [[stock, 0] for stock in stockUniverse]
         self.long = []
         self.short = []
@@ -126,6 +101,33 @@ class LongShort:
                 tRebalance.join()
                 time.sleep(60)
 
+
+    def mail_alert(mail_content, sleep_time):
+            # The mail addresses and password
+            sender_address = EMAIL_USER
+            sender_pass = EMAIL_PASSWORD
+            receiver_address = os.environ.get("YOUR_EMAIL_ADDRESS")
+
+            # Setup MIME
+            message = MIMEMultipart()
+            message['From'] = 'Frankline & Co. HFT Day Trading Bot'
+            message['To'] = receiver_address
+            message['Subject'] = 'Frankline & Co. HFT Important Day Updates'
+            
+            # The body and the attachments for the mail
+            message.attach(MIMEText(mail_content, 'plain'))
+
+            # Create SMTP session for sending the mail
+            session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
+            session.starttls()  # enable security
+
+            # login with mail_id and password
+            session.login(sender_address, sender_pass)
+            text = message.as_string()
+            session.sendmail(sender_address, receiver_address, text)
+            session.quit()
+            time.sleep(sleep_time)
+        
     def awaitMarketOpen(self):
         isOpen = self.alpaca.get_clock().is_open
         while not isOpen:
