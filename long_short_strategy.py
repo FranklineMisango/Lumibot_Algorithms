@@ -286,12 +286,16 @@ class LongShort:
             elif i > (len(self.allStocks) - 1 - longShortAmount):
                 self.long.append(stockField[0])
 
-        #Add buying power and adjust the quantities for equity and stuff 
+        # Add buying power and adjust the quantities for equity and stuff 
         equity = int(float(self.alpaca.get_account().equity))
         buying_power = int(float(self.alpaca.get_account().buying_power))
-        total_cash_for_trading = equity + buying_power
+        
+        # Calculate total cash for trading without depleting buying power
+        total_cash_for_trading = equity
+        if total_cash_for_trading < (equity * 0.45 + equity * 0.55):
+            total_cash_for_trading += min(buying_power, (equity * 0.45 + equity * 0.55) - equity)
 
-        #Long/short ratio of 45/55
+        # Long/short ratio of 45/55
         self.shortAmount = total_cash_for_trading * 0.45
         self.longAmount = total_cash_for_trading - self.shortAmount
         respGetTPLong = []
@@ -305,6 +309,7 @@ class LongShort:
         thread.join()
         self.qLong = int(self.longAmount // respGetTPLong[0])
         self.qShort = int(self.shortAmount // respGetTPShort[0])
+
 
     def getTotalPrice(self, stocks, resp):
         totalPrice = 0
