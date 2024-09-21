@@ -180,20 +180,18 @@ class LongShort:
             openingTime = clock.next_open.replace(tzinfo=datetime.timezone.utc).timestamp()
             currTime = clock.timestamp.replace(tzinfo=datetime.timezone.utc).timestamp()
             timeToOpen = int((openingTime - currTime) / 60)
+            self.initial_equity = int(float(self.alpaca.get_account().equity))
+            initial_equity = self.initial_equity
             if timeToOpen == 30:
                 # Add buying power and adjust the quantities for equity and stuff
-                self.initial_equity = int(float(self.alpaca.get_account().equity))
-                initial_equity = self.initial_equity
                 buying_power = int(float(self.alpaca.get_account().buying_power))
                 initial_total_cash_for_trading = self.initial_equity + buying_power
-
                 # Correcting the string formatting
                 mail_content = (
                     f'The market opens in 30 minutes. '
                     f'Your initial equity (cash) is: ${initial_equity:.2f}. '
                     f'Our Total cash available Before Trading is: ${initial_total_cash_for_trading:.2f}'
                 )
-
                 mail_alert(mail_content, 60)
 
             print(f"{timeToOpen} minutes til market open.")
