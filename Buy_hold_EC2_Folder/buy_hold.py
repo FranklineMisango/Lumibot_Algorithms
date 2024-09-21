@@ -53,11 +53,11 @@ class BuyHold():
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
         self.initial_portfolio_value = 0
         self.end_of_day_portfolio_value = 0
+        equity = self.alpaca.get_account().equity
         self.start_of_day_portfolio_value = float(equity)
         self.stock_initial_prices = {}
         self.monitoring_thread = threading.Thread(target=self.monitor_prices)
         self.monitoring_thread.daemon = True  # Ensure thread exits when main program exits
-        equity = self.alpaca.get_account().equity
 
     def awaitMarketOpen(self):
         nyc = pytz.timezone('America/New_York')
@@ -67,9 +67,13 @@ class BuyHold():
             openingTime = clock.next_open.replace(tzinfo=datetime.timezone.utc).timestamp()
             currTime = clock.timestamp.replace(tzinfo=datetime.timezone.utc).timestamp()
             timeToOpen = int((openingTime - currTime) / 60)
+            if timeToOpen == 30:
+                self.send_email("Market Opening Soon", "Hey Trader, The market is opening in 30 minutes.")
             print(f"{timeToOpen} minutes till market open.")
             time.sleep(60)
             isOpen = self.alpaca.get_clock().is_open
+
+        
         self.send_email("Market Opened", "The market has opened.")
 
     def get_positions_with_retries(self, retries=3, backoff_in_seconds=3):
@@ -195,6 +199,7 @@ class BuyHold():
         return initial_prices
 
     def sell_stock(self, symbol, qty):
+        # Sell the stock
         self.alpaca.submit_order(
             symbol=symbol,
             qty=qty,
@@ -202,20 +207,63 @@ class BuyHold():
             type='market',
             time_in_force='gtc'
         )
-        self.send_email("Stock Sold", f"Sold {qty} of {symbol} as it fell below 85% of its initial value.")
+        self.send_email("Stock Sold", f"Sold {qty} of {symbol} as it fell below 90% of its initial value.")
+        
+        # Identify the top-performing stock
+        top_stock = self.get_top_performing_stock()
+        if top_stock:
+            # Calculate the quantity to purchase
+            available_funds = float(self.alpaca.get_account().equity) + float(self.alpaca.get_account().buying_power)
+            top_stock_price = float(self.alpaca.get_last_trade(top_stock).price)
+            qty_to_buy = int(available_funds / top_stock_price)
+            
+            if qty_to_buy > 0:
+                # Purchase the calculated quantity of the top-performing stock
+                self.alpaca.submit_order(
+                    symbol=top_stock,
+                    qty=qty_to_buy,
+                    side='buy',
+                    type='market',
+                    time_in_force='gtc'
+                )
+                self.send_email("Stock Bought", f"Bought {qty_to_buy} of {top_stock} as it is the top-performing stock.")
 
-    def buy_more_stock(self, symbol):
-        cash = float(self.alpaca.get_account().cash)
+
+    def buy_more_stock(self, symbol, current_qty):
+        cash = float(self.alpaca.get_account().equity)
         price = float(self.alpaca.get_last_trade(symbol).price)
-        qty = int(cash / price)
-        self.alpaca.submit_order(
-            symbol=symbol,
-            qty=qty,
-            side='buy',
-            type='market',
-            time_in_force='gtc'
-        )
-        self.send_email("Stock Bought", f"Bought {qty} of {symbol} as it gained more than 10% of its initial value.")
+        qty_to_buy = int(current_qty * 0.40)
+        total_cost = qty_to_buy * price
+
+        if total_cost <= cash:
+            self.alpaca.submit_order(
+                symbol=symbol,
+                qty=qty_to_buy,
+                side='buy',
+                type='market',
+                time_in_force='gtc'
+            )
+            self.send_email("Stock Bought", f"Bought {qty_to_buy} of {symbol} as it gained more than 10% of its initial value.")
+
+
+
+    def get_top_performing_stock(self):
+        positions = self.alpaca.list_positions()
+        top_stock = None
+        top_performance = -float('inf')
+        
+        for position in positions:
+            initial_price = self.stock_initial_prices.get(position.symbol, float(position.current_price))
+            current_price = float(position.current_price)
+            performance = (current_price - initial_price) / initial_price
+            
+            if performance > top_performance:
+                top_performance = performance
+                top_stock = position.symbol
+        
+        return top_stock
+
+    
 
     def check_market_close(self):
         self.end_of_day_portfolio_value = self.get_portfolio_value()
@@ -235,7 +283,7 @@ class BuyHold():
 
     def send_email(self, subject, body, attachment=None):
         msg = MIMEMultipart()
-        msg['From'] = 'Frankline & Co. LP Day Trading HFT Bot'
+        msg['From'] = 'Frankline & Co. LP Buy/Hold Day Trading Bot'
         msg['To'] = EMAIL_RECEIVER
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'plain'))
