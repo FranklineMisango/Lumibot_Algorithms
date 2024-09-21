@@ -123,6 +123,7 @@ class LongShort:
         self.shortAmount = 0
         self.timeToClose = None
         self.orders_log = []
+        self.initial_equity = None
 
 
     def run(self):
