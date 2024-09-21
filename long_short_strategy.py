@@ -28,12 +28,9 @@ EMAIL_USER = os.environ.get('EMAIL_ADDRESS')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 EMAIL_RECEIVER = os.environ.get('YOUR_EMAIL_ADDRESS')
 
+#Declaring global variables
+global initial_equity
 #helper functions  to send the emails to the traders 
-
-#Helper functions
-
-
-    
 def mail_alert(mail_content, sleep_time):
     # The mail addresses and password
     sender_address = EMAIL_USER
@@ -185,12 +182,14 @@ class LongShort:
             if timeToOpen == 30:
                 # Add buying power and adjust the quantities for equity and stuff
                 self.initial_equity = int(float(self.alpaca.get_account().equity))
+                initial_equity = self.initial_equity
                 buying_power = int(float(self.alpaca.get_account().buying_power))
                 initial_total_cash_for_trading = self.initial_equity + buying_power
 
                 # Correcting the string formatting
                 mail_content = (
                     f'The market opens in 30 minutes. '
+                    f'Your initial equity (cash) is: ${initial_equity:.2f}. '
                     f'Our Total cash available Before Trading is: ${initial_total_cash_for_trading:.2f}'
                 )
 
@@ -200,7 +199,8 @@ class LongShort:
             equity = int(float(self.alpaca.get_account().equity))
             buying_power = int(float(self.alpaca.get_account().buying_power))
             initial_total_cash_for_trading = equity + buying_power
-            print(f"Our Total cash is  : {initial_total_cash_for_trading}")
+            print(f'Your initial equity (cash) is: ${initial_equity:.2f}. ')                       
+            print(f"Our Total Funding pool with Buying power is  : {initial_total_cash_for_trading}")
             time.sleep(60)
             isOpen = self.alpaca.get_clock().is_open
 
@@ -428,7 +428,7 @@ class LongShort:
         msg['To'] = EMAIL_RECEIVER
         msg['Subject'] = "Post-Market Daily Trade Report"
         msg['Signature'] =  "Making HFT Fun and Profitable"
-        profit = int(float(self.alpaca.get_account().equity)) - self.initial_equity
+        profit = int(float(self.alpaca.get_account().equity)) - initial_equity
         order_count = len(self.orders_log)
         body = (
                 f"Hello Trader, Attached is the Daily trade report from Day Trading.\n"
