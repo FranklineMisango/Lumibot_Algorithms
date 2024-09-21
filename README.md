@@ -6,18 +6,24 @@
 
 ## 📖 Introduction
 
-This project is a high-frequency trading (HFT) bot that uses various strategies, user predefined,  to identify and execute trades on various stock tickers. The bot reads historical stock data, executes the strategy, and places buy or sell orders based on predefined conditions.
+This project is implementation of high-frequency trading (HFT) bots that use various strategies, user predefined,  to identify and execute trades on various stock tickers. The bot reads historical minute data, executes the strategy, and places buy or sell orders based on programmed conditions.
+
+## 🏆 Current Achievements 
+
+- **Positive ROI for Buy/Hold** : Our Buy_hold strategy is currently being tested with Warren' buffets portfolio and is making around 2,000 per day which marked the first positive P & L since inception 
+
+- **Long/short executes 100,000 trades in a historic run** : Our Long/short strategy recently did 100k + Trades in a single Day run and we helped us validate its shell-life per trade. We thank AWS powerful EC2 Servers as always
 
 ## 🚀 Features
 
-- **Default Strategy : Dynamic ROC Calculation**: Calculates the ROC based on the `Close` price and dynamically determined timeframe.
-- **Automated Trading**: Automatically places buy and sell orders based on the strategy. Turns on at 0930 Hrs NY Time and Sleeps at 1600 hrs NY Time. 
+- **Some Strategy : Long Hold strategy**: Runs the HFT and determines which stocks to short/hold throghout the day after user provides them
+- **Automated Trading**: Automatically places buy and sell orders based on the strategy. Turns on at 0930 Hrs NY Time and Sleeps at 03:45 hrs NY Time. 
 - **Email Alerts**: Sends email notifications for trade executions.
-- **Order Logging**: Logs all executed orders to a CSV file for record-keeping.
+- **Order Logging**: Logs all executed orders to a CSV / Graph file for record-keeping.
 
 ## 🔄 Updates and Project Goals
 
-I am currently integrating all functions within the [`Algorithms`] folder to be used seamlessly within the main trading bot and would mostly rely on Langchain Agents and Langsmith models. This will allow for a more modular and flexible approach to trading strategies. Users can now choose to run any algorithm manually if they prefer, without relying solely on the ROC strategy. This enhancement aims to provide greater flexibility and customization for different trading needs.
+I am currently reprogramming all strategies within the [`Backtesting Algorithms`] folder to be real-time HFT algorithms with trading bot capabalities. The user can also backtest with them . This will allow for a more modular and flexible approach to trading strategies. Users can now choose to run any algorithm manually that is labelled 'strategy' if they prefer, without relying solely on the ROC strategy. This enhancement aims to provide greater flexibility and customization for different trading needs.
 
 ## 🛠️ Installation
 
@@ -34,8 +40,10 @@ I am currently integrating all functions within the [`Algorithms`] folder to be 
     ```
 
 3. **Install the required dependencies**:
-    ```bash
+    ```
+    bash
     pip install -r requirements.txt
+    
     ```
 
 4. **Set up environment variables**:
@@ -44,13 +52,12 @@ I am currently integrating all functions within the [`Algorithms`] folder to be 
     export EMAIL_PASSWORD="your_email_password"
     export ALPACA_API_KEY = "your_apca_api_key_id"
     export ALPACA_API_SECRET_KEY =  "your_apca_secret_key"
-
     ```
 
 ## 📈 Usage
 
 1. **Prepare your tick data**:
-    - Ensure the program is downloadinf files for each ticker in the `tick_data` directory. Each file should follow the structure:
+    - Ensure the program is downloading files for each ticker in the `tick_data` directory. Each file should follow the structure:
       ```csv
       Datetime,Open,High,Low,Close,Adj Close,Volume
       2024-09-05 10:32,54.209999084472656,54.209999084472656,54.18000030517578,54.209999084472656,54.209999084472656,0
