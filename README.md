@@ -12,7 +12,7 @@ This project is implementation of high-frequency trading (HFT) bots that use var
 
 - **Positive ROI for Buy/Hold** : Our Buy_hold strategy is currently being tested with Warren' buffets portfolio and is making around 2,000 per day which marked the first positive P & L since inception 
 
-- **Long/short executes 100,000 trades in a historic run** : Our Long/short strategy recently did 100k + Trades in a single Day run and we helped us validate its shell-life per trade. We thank AWS powerful EC2 Servers as always
+- **Long/short executes 100,000 trades in a historic run** : Our Long/short strategy recently did 100k + Trades in a single Day run and  helped us validate its shell-life for volatile markets trade. We thank AWS powerful EC2 Servers as always
 
 ## 🚀 Features
 
@@ -43,7 +43,7 @@ I am currently reprogramming all strategies within the [`Backtesting Algorithms`
     ```
     bash
     pip install -r requirements.txt
-    
+
     ```
 
 4. **Set up environment variables**:
