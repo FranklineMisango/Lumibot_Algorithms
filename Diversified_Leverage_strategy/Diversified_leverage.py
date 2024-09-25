@@ -1,25 +1,31 @@
 from datetime import datetime
 from lumibot.entities import Asset, Order
 from lumibot.strategies import Strategy
+
 from lumibot.backtesting import CcxtBacktesting
 from lumibot.backtesting import YahooDataBacktesting 
 from lumibot.traders import Trader
+
 from lumibot.entities import TradingFee
 import alpaca_trade_api as alpaca
 import os
-from ccxt.base.types import TradingFees
+import yfinance as yf
+import threading
+import alpaca_trade_api as tradeapi
 
-#Environment variables 
+
 from dotenv import load_dotenv
-load_dotenv
+load_dotenv()
 
-API_KEY_ALPACA = os.environ.get("API_KEY_ALPACA")
-APCA_API_KEY_ID=os.environ.get("APCA_API_KEY_ID")
-SECRET_KEY_ALPACA =os.environ.get("SECRET_KEY_ALPACA")
-BASE_URL = os.environ.get("BASE_URL")
+API_KEY = os.environ.get('APCA_API_KEY_ID')
+API_SECRET = os.environ.get('APCA_API_SECRET_KEY')
+APCA_API_BASE_URL = "https://paper-api.alpaca.markets"
 
-ALPACA_CONFIG = alpaca.REST(APCA_API_KEY_ID, SECRET_KEY_ALPACA, base_url= BASE_URL, api_version = 'v2')
-BASE_URL = os.environ.get("BASE_URL")
+EMAIL_USER = os.environ.get('EMAIL_ADDRESS')
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+EMAIL_RECEIVER = os.environ.get('YOUR_EMAIL_ADDRESS')
+
+trading_broker = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
 
 class DiversifiedLeverage(Strategy):
     # =====Overloading lifecycle methods=============
@@ -126,18 +132,16 @@ class DiversifiedLeverage(Strategy):
 
 
 if __name__ == "__main__":
-    is_live = False
-
-    if is_live:
-        ####
-        # Run the strategy live
-        ####
+    user_input = input("Do you want to run the strategy live? (y/n): ")
+    # Choose whether to run the strategy live or backtest it
+    if user_input == "y":
+        trading_broker = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
 
         trader = Trader()
-        broker = alpaca(ALPACA_CONFIG) #Work on the alpaca config
-        strategy = DiversifiedLeverage(broker=broker)
+        strategy = DiversifiedLeverage(broker=trading_broker)
         trader.add_strategy(strategy)
         trader.run_all()
+
 
     else:
         ####
@@ -146,7 +150,7 @@ if __name__ == "__main__":
 
         # Choose the time from and to which you want to backtest
         backtesting_start = datetime(2024, 1, 1)
-        backtesting_end = datetime(2024,9, 12)
+        backtesting_end = datetime(2024, 9, 12)
 
         # 0.01% trading/slippage fee
         trading_fee = TradingFee(percent_fee=0.005)
@@ -154,7 +158,7 @@ if __name__ == "__main__":
         # Initialize the backtesting object
         print("Starting Backtest...")
         result = DiversifiedLeverage.backtest(
-            YahooDataBacktesting,
+            CcxtBacktesting,
             backtesting_start,
             backtesting_end,
             benchmark_asset="SPY",
