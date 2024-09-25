@@ -427,7 +427,7 @@ class LongShort:
         msg['To'] = EMAIL_RECEIVER
         msg['Subject'] = "Post-Market Daily Trade Report"
         msg['Signature'] =  "Making HFT Fun and Profitable"
-        profit = int(float(self.alpaca.get_account().equity)) - initial_equity
+        profit = int(float(self.alpaca.get_account().equity)) - self.initial_equity
         order_count = len(self.orders_log)
         body = (
                 f"Hello Trader, Attached is the Daily trade report from Day Trading.\n"
