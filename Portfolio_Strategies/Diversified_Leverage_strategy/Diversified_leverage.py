@@ -1,31 +1,24 @@
 from datetime import datetime
-from lumibot.entities import Asset, Order
-from lumibot.strategies import Strategy
 
-from lumibot.backtesting import CcxtBacktesting
-from lumibot.backtesting import YahooDataBacktesting 
-from lumibot.traders import Trader
-
+from lumibot.backtesting import YahooDataBacktesting
+from lumibot.brokers import Alpaca
 from lumibot.entities import TradingFee
-import alpaca_trade_api as alpaca
-import os
-import yfinance as yf
-import threading
-import alpaca_trade_api as tradeapi
-
-
+from lumibot.strategies.strategy import Strategy
+from lumibot.traders import Trader
 from dotenv import load_dotenv
 load_dotenv()
+import os
 
-API_KEY = os.environ.get('APCA_API_KEY_ID')
-API_SECRET = os.environ.get('APCA_API_SECRET_KEY')
-APCA_API_BASE_URL = "https://paper-api.alpaca.markets"
 
-EMAIL_USER = os.environ.get('EMAIL_ADDRESS')
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
-EMAIL_RECEIVER = os.environ.get('YOUR_EMAIL_ADDRESS')
 
-trading_broker = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
+
+"""
+Strategy Description
+
+This strategy will buy a few symbols that have 2x or 3x returns (have leverage), but will 
+also diversify and rebalance the portfolio often.
+"""
+
 
 class DiversifiedLeverage(Strategy):
     # =====Overloading lifecycle methods=============
@@ -132,16 +125,30 @@ class DiversifiedLeverage(Strategy):
 
 
 if __name__ == "__main__":
-    user_input = input("Do you want to run the strategy live? (y/n): ")
-    # Choose whether to run the strategy live or backtest it
-    if user_input == "y":
-        trading_broker = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
+    is_live = False
 
+    if is_live:
+        ####
+        # Run the strategy live
+        ####
+
+
+
+        API_KEY = os.environ.get('API_KEY_ALPACA')
+        API_SECRET = os.environ.get('SECRET_KEY_ALPACA')
+        APCA_API_BASE_URL = "https://paper-api.alpaca.markets"
+        
+        ALPACA_CONFIG = {
+            "API_KEY": API_KEY,
+            "API_SECRET": API_SECRET,
+            "APCA_API_BASE_URL": APCA_API_BASE_URL,
+        }
+        
         trader = Trader()
-        strategy = DiversifiedLeverage(broker=trading_broker)
+        broker = Alpaca(ALPACA_CONFIG)
+        strategy = DiversifiedLeverage(broker=broker)
         trader.add_strategy(strategy)
         trader.run_all()
-
 
     else:
         ####
@@ -149,8 +156,8 @@ if __name__ == "__main__":
         ####
 
         # Choose the time from and to which you want to backtest
-        backtesting_start = datetime(2024, 1, 1)
-        backtesting_end = datetime(2024, 9, 12)
+        backtesting_start = datetime(2024, 10, 1)
+        backtesting_end = datetime(2024, 10, 21)
 
         # 0.01% trading/slippage fee
         trading_fee = TradingFee(percent_fee=0.005)
@@ -158,7 +165,7 @@ if __name__ == "__main__":
         # Initialize the backtesting object
         print("Starting Backtest...")
         result = DiversifiedLeverage.backtest(
-            CcxtBacktesting,
+            YahooDataBacktesting,
             backtesting_start,
             backtesting_end,
             benchmark_asset="SPY",
