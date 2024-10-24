@@ -30,19 +30,16 @@ import matplotlib.pyplot as plt
 import datetime
 import pytz
 from datetime import timedelta
-
 from alpaca.trading.requests import MarketOrderRequest
-
 from alpaca.trading.enums import AssetStatus,OrderSide, OrderType, TimeInForce, OrderClass, QueryOrderStatus
 
-API_KEY = os.environ.get('APCA_API_KEY_ID')
-API_SECRET = os.environ.get('APCA_API_SECRET_KEY')
+API_KEY = os.environ.get('API_KEY_ALPACA')
+API_SECRET = os.environ.get('SECRET_KEY_ALPACA')
 APCA_API_BASE_URL = "https://paper-api.alpaca.markets"
 EMAIL_USER = os.environ.get('EMAIL_ADDRESS')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 EMAIL_RECEIVER = os.environ.get('YOUR_EMAIL_ADDRESS')
 paper = True
-
 import yfinance as yf
 import backtrader as bt
 import datetime as dt
@@ -52,6 +49,37 @@ import time
 import threading
 
 # Strategy Class for SMA Crossover
+
+trading_api =  tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
+
+# Global 
+
+def mail_alert(mail_content, sleep_time):
+    # The mail addresses and password
+    sender_address = EMAIL_USER
+    sender_pass = EMAIL_PASSWORD
+
+    # Setup MIME
+    message = MIMEMultipart()
+    message['From'] = 'Frankline & Co. HFT {SMA Crossover strategy} Day Trading Bot'
+    message['To'] = EMAIL_RECEIVER
+    message['Subject'] = 'Frankline & Co. HFT Important Day Updates'
+    message['Signature'] =  "Making HFT Fun and Profitable"
+    
+    # The body and the attachments for the mail
+    message.attach(MIMEText(mail_content, 'plain'))
+
+    # Create SMTP session for sending the mail
+    session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
+    session.starttls()  # enable security
+
+    # login with mail_id and password
+    session.login(sender_address, sender_pass)
+    text = message.as_string()
+    session.sendmail(sender_address, EMAIL_RECEIVER, text)
+    session.quit()
+    time.sleep(sleep_time)
+
 class SmaCross(bt.Strategy):
     params = dict(pfast=13, pslow=25)
 
@@ -147,31 +175,45 @@ def strategy_statistics(results, ticker):
 # Threaded function to fetch data and run the strategy
 def run_stock_strategy(ticker):
     while True:
-        nyc_time = pytz.timezone('America/New_York')
-        now = dt.datetime.now(nyc_time)
-        current_time = now.time()
+        # Check if the market is open
+        isOpen = trading_api.get_clock().is_open
+        while not isOpen:
+            clock = trading_api.get_clock()
+            openingTime = clock.next_open.replace(tzinfo=datetime.timezone.utc).timestamp()
+            currTime = clock.timestamp.replace(tzinfo=datetime.timezone.utc).timestamp()
+            timeToOpen = int((openingTime - currTime) / 60)
+            trading_api.initial_equity = int(float(trading_api.get_account().equity))
+            initial_equity = trading_api.initial_equity
+            if timeToOpen == 30:
+                # Add buying power and adjust the quantities for equity and stuff
+                buying_power = int(float(trading_api.get_account().buying_power))
+                initial_total_cash_for_trading = trading_api.initial_equity + buying_power
+                # Correcting the string formatting
+                mail_content = (
+                    f'The market opens in 30 minutes. '
+                    f'Your initial equity (cash) is: ${initial_equity:.2f}. '
+                    f'Our Total cash available Before Trading is: ${initial_total_cash_for_trading:.2f}'
+                )
+                mail_alert(mail_content, 60)
 
-        market_open = dt.time(9, 30)
-        market_close = dt.time(16, 0)
+            print(f"{timeToOpen} minutes til market open.")
+            equity = int(float(trading_api.get_account().equity))
+            buying_power = int(float(trading_api.get_account().buying_power))
+            initial_total_cash_for_trading = equity + buying_power
+            print(f'Your initial equity (cash) is: ${initial_equity:.2f}. ')                       
+            print(f"Our Total Funding pool with Buying power is  : {initial_total_cash_for_trading}")
+            time.sleep(60)
+            isOpen = trading_api.get_clock().is_open
 
-        if market_open <= current_time <= market_close:
-            print(f"Running SMA strategy for {ticker} at {now.strftime('%Y-%m-%d %H:%M:%S')}")
+        data = fetch_minute_data(ticker)
 
-            # Fetch minute-level data
-            data = fetch_minute_data(ticker)
+        if not data.empty:
+            # Run the strategy with the fetched data
+            run_cerebro_with_data(ticker, data)
 
-            if not data.empty:
-                # Run the strategy with the fetched data
-                run_cerebro_with_data(ticker, data)
+        # Sleep for 15 minutes
+        time.sleep(900)
 
-            # Sleep for 15 minutes
-            time.sleep(900)
-        else:
-            print(f"Market is closed for {ticker}. Waiting for the next session.")
-            # Wait for the next market session
-            next_open = dt.datetime.combine(now.date() + dt.timedelta(days=1), market_open)
-            sleep_time = (next_open - now).total_seconds()
-            time.sleep(sleep_time)
 
 # Launch threads for each stock ticker
 def run_sma_strategy_threaded(stock_list):
@@ -185,11 +227,41 @@ def run_sma_strategy_threaded(stock_list):
     for thread in threads:
         thread.join()
 
-# List of stock tickers to monitor
-stock_universe = ['AAPL', 'TSLA', 'MSFT', 'NVDA', 'AMZN']  # Example tickers
+#testing 
+stockUniverse = [
+        # Technology
+        'AAPL', 'MSFT', 'NVDA', 'GOOG', 'META',
+        
+        # Financials
+        'JPM', 'BAC', 'GS', 'MS', 'C',
+        
+        # Healthcare
+        'JNJ', 'PFE', 'UNH', 'ABT', 'MRK',
+        
+        # Consumer Discretionary
+        'AMZN', 'TSLA', 'NKE', 'MCD', 'HD',
+        
+        # Consumer Staples
+        'PG', 'KO', 'PEP', 'WMT', 'COST',
+        
+        # Energy
+        'XOM', 'CVX', 'BP', 'SLB', 'EOG',
+        
+        # Industrials
+        'BA', 'CAT', 'HON', 'GE', 'LMT',
+        
+        # Communication Services
+        'DIS', 'CMCSA', 'NFLX', 'T', 'VZ',
+        
+        # Real Estate
+        'AMT', 'PLD', 'SPG', 'EQIX', 'O',
+        
+        # Utilities
+        'NEE', 'DUK', 'SO', 'D', 'EXC'
+    ]
 
 if __name__ == '__main__':
     print("Starting threaded SMA strategy with real-time data and statistics")
-    run_sma_strategy_threaded(stock_universe)
+    run_sma_strategy_threaded(stockUniverse)
 
    
