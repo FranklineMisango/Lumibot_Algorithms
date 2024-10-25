@@ -1,9 +1,9 @@
 import backtrader as bt
 import matplotlib.pyplot as plt 
-from langchain_core.tools import tool
 from dotenv import load_dotenv
 load_dotenv()
 import os
+import asyncio
 from alpaca_trade_api.rest import REST, TimeFrame
 import  datetime as dt
 from requests.exceptions import HTTPError
@@ -173,9 +173,8 @@ def strategy_statistics(results, ticker):
     print(f"---------------------------------------------\n")
 
 # Threaded function to fetch data and run the strategy
-def run_stock_strategy(ticker):
+async def run_stock_strategy(ticker):
     while True:
-        # Check if the market is open
         isOpen = trading_api.get_clock().is_open
         while not isOpen:
             clock = trading_api.get_clock()
@@ -185,10 +184,8 @@ def run_stock_strategy(ticker):
             trading_api.initial_equity = int(float(trading_api.get_account().equity))
             initial_equity = trading_api.initial_equity
             if timeToOpen == 30:
-                # Add buying power and adjust the quantities for equity and stuff
                 buying_power = int(float(trading_api.get_account().buying_power))
                 initial_total_cash_for_trading = trading_api.initial_equity + buying_power
-                # Correcting the string formatting
                 mail_content = (
                     f'The market opens in 30 minutes. '
                     f'Your initial equity (cash) is: ${initial_equity:.2f}. '
@@ -202,30 +199,20 @@ def run_stock_strategy(ticker):
             initial_total_cash_for_trading = equity + buying_power
             print(f'Your initial equity (cash) is: ${initial_equity:.2f}. ')                       
             print(f"Our Total Funding pool with Buying power is  : {initial_total_cash_for_trading}")
-            time.sleep(60)
+            await asyncio.sleep(60)
             isOpen = trading_api.get_clock().is_open
 
-        data = fetch_minute_data(ticker)
+        data = await fetch_minute_data(ticker)
 
         if not data.empty:
-            # Run the strategy with the fetched data
-            run_cerebro_with_data(ticker, data)
+            await run_cerebro_with_data(ticker, data)
 
-        # Sleep for 15 minutes
-        time.sleep(900)
+        await asyncio.sleep(900)
 
+async def run_sma_strategy_async(stock_list):
+    tasks = [run_stock_strategy(ticker) for ticker in stock_list]
+    await asyncio.gather(*tasks)
 
-# Launch threads for each stock ticker
-def run_sma_strategy_threaded(stock_list):
-    threads = []
-
-    for ticker in stock_list:
-        thread = threading.Thread(target=run_stock_strategy, args=(ticker,))
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
 
 #testing 
 stockUniverse = [
@@ -262,6 +249,6 @@ stockUniverse = [
 
 if __name__ == '__main__':
     print("Starting threaded SMA strategy with real-time data and statistics")
-    run_sma_strategy_threaded(stockUniverse)
+    asyncio.run(run_sma_strategy_async(stockUniverse))
 
    
