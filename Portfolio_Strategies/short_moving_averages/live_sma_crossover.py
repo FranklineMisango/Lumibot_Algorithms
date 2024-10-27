@@ -5,7 +5,7 @@ load_dotenv()
 import os
 import asyncio
 from alpaca_trade_api.rest import REST, TimeFrame
-import  datetime as dt
+import datetime as dt
 from requests.exceptions import HTTPError
 from lumibot.brokers import Alpaca
 from lumibot.strategies import Strategy
@@ -31,7 +31,7 @@ import datetime
 import pytz
 from datetime import timedelta
 from alpaca.trading.requests import MarketOrderRequest
-from alpaca.trading.enums import AssetStatus,OrderSide, OrderType, TimeInForce, OrderClass, QueryOrderStatus
+from alpaca.trading.enums import AssetStatus, OrderSide, OrderType, TimeInForce, OrderClass, QueryOrderStatus
 
 API_KEY = os.environ.get('API_KEY_ALPACA')
 API_SECRET = os.environ.get('SECRET_KEY_ALPACA')
@@ -50,7 +50,7 @@ import threading
 
 # Strategy Class for SMA Crossover
 
-trading_api =  tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
+trading_api = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
 
 # Global 
 
@@ -64,7 +64,7 @@ def mail_alert(mail_content, sleep_time):
     message['From'] = 'Frankline & Co. HFT {SMA Crossover strategy} Day Trading Bot'
     message['To'] = EMAIL_RECEIVER
     message['Subject'] = 'Frankline & Co. HFT Important Day Updates'
-    message['Signature'] =  "Making HFT Fun and Profitable"
+    message['Signature'] = "Making HFT Fun and Profitable"
     
     # The body and the attachments for the mail
     message.attach(MIMEText(mail_content, 'plain'))
@@ -107,11 +107,26 @@ def add_analyzers(cerebro):
     cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name="sharpe_ratio")
 
 # Fetch minute-level data from Yahoo Finance
-def fetch_minute_data(ticker):
+async def fetch_minute_data(ticker):
+    loop = asyncio.get_event_loop()
     end = dt.datetime.now()
     start = end - dt.timedelta(days=1)
-    data = yf.download(ticker, start=start, end=end, interval='1m')
+    data = await loop.run_in_executor(None, yf.download, ticker, start, end, '1m')
     return data
+
+# Function to accumulate data for 15 minutes and run cerebro
+async def accumulate_and_run_cerebro(ticker):
+    accumulated_data = pd.DataFrame()
+    end_time = datetime.now() + timedelta(minutes=15)
+    
+    while datetime.now() < end_time:
+        data = await fetch_minute_data(ticker)
+        if not data.empty:
+            accumulated_data = pd.concat([accumulated_data, data])
+        await asyncio.sleep(60)
+    
+    if not accumulated_data.empty:
+        run_cerebro_with_data(ticker, accumulated_data)
 
 # Run Cerebro for a stock with fetched data
 def run_cerebro_with_data(ticker, data):
@@ -202,10 +217,7 @@ async def run_stock_strategy(ticker):
             await asyncio.sleep(60)
             isOpen = trading_api.get_clock().is_open
 
-        data = await fetch_minute_data(ticker)
-
-        if not data.empty:
-            await run_cerebro_with_data(ticker, data)
+        await accumulate_and_run_cerebro(ticker)
 
         await asyncio.sleep(900)
 
@@ -250,5 +262,3 @@ stockUniverse = [
 if __name__ == '__main__':
     print("Starting threaded SMA strategy with real-time data and statistics")
     asyncio.run(run_sma_strategy_async(stockUniverse))
-
-   
