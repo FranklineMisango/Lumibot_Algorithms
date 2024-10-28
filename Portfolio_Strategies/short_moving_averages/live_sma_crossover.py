@@ -40,6 +40,7 @@ EMAIL_USER = os.environ.get('EMAIL_ADDRESS')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 EMAIL_RECEIVER = os.environ.get('YOUR_EMAIL_ADDRESS')
 paper = True
+
 import yfinance as yf
 import backtrader as bt
 import datetime as dt
@@ -128,6 +129,12 @@ async def accumulate_and_run_cerebro(ticker):
     if not accumulated_data.empty:
         run_cerebro_with_data(ticker, accumulated_data)
 
+# Function to send orders if the results from run_cerebro are profitable : gain_loss_ratio > 1 and avg_percent_gain > 0
+def send_order(ticker, gain_loss_ratio, avg_percent_gain):
+    if gain_loss_ratio > 1 and avg_percent_gain > 0:
+        print(f"Sending order for {ticker}")
+        # TODO - Send order for the stock
+        
 # Run Cerebro for a stock with fetched data
 def run_cerebro_with_data(ticker, data):
     cerebro = bt.Cerebro()
