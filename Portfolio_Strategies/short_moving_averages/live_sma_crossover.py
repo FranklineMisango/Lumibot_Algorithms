@@ -134,7 +134,14 @@ def send_order(ticker, gain_loss_ratio, avg_percent_gain):
     if gain_loss_ratio > 1 and avg_percent_gain > 0:
         print(f"Sending order for {ticker}")
         # TODO - Send order for the stock
-        
+
+# Function to sell orders if the results from run_cerebro are resulting in a loss : gain_loss_ratio < 1 and avg_percent_gain < 0
+def sell_order(ticker, gain_loss_ratio, avg_percent_gain):
+    if gain_loss_ratio < 1 and avg_percent_gain < 0:
+        print(f"Selling order for {ticker}")
+        # TODO - Sell order for the stock
+
+
 # Run Cerebro for a stock with fetched data
 def run_cerebro_with_data(ticker, data):
     cerebro = bt.Cerebro()
