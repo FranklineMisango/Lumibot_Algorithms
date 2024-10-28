@@ -54,7 +54,6 @@ import threading
 trading_api = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
 
 # Global 
-
 def mail_alert(mail_content, sleep_time):
     # The mail addresses and password
     sender_address = EMAIL_USER
