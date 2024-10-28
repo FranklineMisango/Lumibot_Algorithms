@@ -32,7 +32,7 @@ class Trend(Strategy):
     def on_trading_iteration(self):
         # Define the symbols and dynamically calculate the quantity based on the cash available
         cash = 100000  # $1M
-        symbols = ["AAPL", "MSFT", "GOOG"]
+        symbols = ["AAPL", "MSFT", "GOOG"] #just samples
         prices = {symbol: self.get_last_price(symbol) for symbol in symbols} #Potential warning generator
         quantities = {symbol: cash // (len(symbols) * prices[symbol]) for symbol in symbols}
         print(f"Symbols: {symbols}")
