@@ -53,7 +53,11 @@ import threading
 
 trading_api = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
 
-# Global 
+#global ticker holding array 
+
+tickers_sent = []
+total_sell_orders = 0
+
 def mail_alert(mail_content, sleep_time):
     # The mail addresses and password
     sender_address = EMAIL_USER
@@ -131,15 +135,46 @@ async def accumulate_and_run_cerebro(ticker):
 # Function to send orders if the results from run_cerebro are profitable : gain_loss_ratio > 1 and avg_percent_gain > 0
 def send_order(ticker, gain_loss_ratio, avg_percent_gain):
     if gain_loss_ratio > 1 and avg_percent_gain > 0:
+        total_buy_orders = 0
         print(f"Sending order for {ticker}")
-        # TODO - Send order for the stock
+        number = 1000 # send a 1000 shares
+        # preparing market order
+        market_order_data = MarketOrderRequest(
+                            symbol=ticker,
+                            qty=number,
+                            side=OrderSide.BUY,
+                            time_in_force=TimeInForce.DAY
+                            )
 
+        # Market order
+        sell_market_order = tradeapi.submit_order(
+                        order_data=market_order_data
+                    )
+        tickers_sent.append(ticker)
+        total_buy_orders += 1
+
+        
 # Function to sell orders if the results from run_cerebro are resulting in a loss : gain_loss_ratio < 1 and avg_percent_gain < 0
 def sell_order(ticker, gain_loss_ratio, avg_percent_gain):
     if gain_loss_ratio < 1 and avg_percent_gain < 0:
+        total_sell_orders = 0
         print(f"Selling order for {ticker}")
-        # TODO - Sell order for the stock
-
+        # if the ticker is already in the list of tickers sent, sell the order completely
+        if ticker in tickers_sent:
+            number = 1000
+            # preparing market order
+            market_order_data = MarketOrderRequest(
+                                symbol=ticker,
+                                qty=number,
+                                side=OrderSide.SELL,
+                                time_in_force=TimeInForce.DAY
+                                )   
+            # Market order
+            sell_market_order = tradeapi.submit_order(
+                            order_data=market_order_data
+                        )
+            tickers_sent.remove(ticker)
+            total_sell_orders += 1
 
 # Run Cerebro for a stock with fetched data
 def run_cerebro_with_data(ticker, data):
