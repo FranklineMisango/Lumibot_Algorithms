@@ -176,8 +176,9 @@ def sell_order(ticker, gain_loss_ratio, avg_percent_gain):
             tickers_sent.remove(ticker)
             total_sell_orders += 1
 
-# Run Cerebro for a stock with fetched data
+# Run Cerebro for a stock with fetched data - 15 minutes - fails to run within the time zone
 def run_cerebro_with_data(ticker, data):
+
     cerebro = bt.Cerebro()
     cerebro.addstrategy(SmaCross)
 
@@ -198,7 +199,7 @@ def run_cerebro_with_data(ticker, data):
     # Print strategy statistics after each execution
     strategy_statistics(results, ticker)
 
-# Function to calculate and display strategy statistics
+# Function to calculate and display strategy statistics for a data collected from the past 15 minutes
 def strategy_statistics(results, ticker):
     strat = results[0]
     trade_analysis = strat.analyzers.trade_analyzer.get_analysis()
@@ -278,32 +279,14 @@ async def run_sma_strategy_async(stock_list):
 stockUniverse = [
         # Technology
         'AAPL', 'MSFT', 'NVDA', 'GOOG', 'META',
-        
-        # Financials
         'JPM', 'BAC', 'GS', 'MS', 'C',
-        
-        # Healthcare
         'JNJ', 'PFE', 'UNH', 'ABT', 'MRK',
-        
-        # Consumer Discretionary
         'AMZN', 'TSLA', 'NKE', 'MCD', 'HD',
-        
-        # Consumer Staples
         'PG', 'KO', 'PEP', 'WMT', 'COST',
-        
-        # Energy
         'XOM', 'CVX', 'BP', 'SLB', 'EOG',
-        
-        # Industrials
         'BA', 'CAT', 'HON', 'GE', 'LMT',
-        
-        # Communication Services
         'DIS', 'CMCSA', 'NFLX', 'T', 'VZ',
-        
-        # Real Estate
         'AMT', 'PLD', 'SPG', 'EQIX', 'O',
-        
-        # Utilities
         'NEE', 'DUK', 'SO', 'D', 'EXC'
     ]
 
