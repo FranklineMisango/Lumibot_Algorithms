@@ -277,7 +277,7 @@ async def run_sma_strategy_async(stock_list):
 
 #testing 
 stockUniverse = [
-        # Technology
+        # Technology - diversified pre portfolio
         'AAPL', 'MSFT', 'NVDA', 'GOOG', 'META',
         'JPM', 'BAC', 'GS', 'MS', 'C',
         'JNJ', 'PFE', 'UNH', 'ABT', 'MRK',
