@@ -43,7 +43,6 @@ paper = True
 
 import yfinance as yf
 import backtrader as bt
-import datetime as dt
 import pandas as pd
 import pytz
 import time
@@ -110,23 +109,28 @@ def add_analyzers(cerebro):
     cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name="trade_analyzer")
     cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name="sharpe_ratio")
 
-# Fetch minute-level data from Yahoo Finance
 async def fetch_minute_data(ticker):
     loop = asyncio.get_event_loop()
-    end = dt.datetime.now()
-    start = end - dt.timedelta(days=1)
-    data = await loop.run_in_executor(None, yf.download, ticker, start, end, '1m')
+    end = dt.now()
+    start = end - timedelta(days=1)
+    try:
+        data = await loop.run_in_executor(None, yf.download, ticker, start, end, '1m')
+    except KeyError:
+        print(f"Data for ticker {ticker} is not available.")
+        return None  # Return None if data is not available
     return data
 
 # Function to accumulate data for 15 minutes and run cerebro
 async def accumulate_and_run_cerebro(ticker):
     accumulated_data = pd.DataFrame()
-    end_time = datetime.now() + timedelta(minutes=15)
+    end_time = dt.now() + timedelta(minutes=15)
     
-    while datetime.now() < end_time:
+    while dt.now() < end_time:
         data = await fetch_minute_data(ticker)
-        if not data.empty:
+        if data is not None and not data.empty:
             accumulated_data = pd.concat([accumulated_data, data])
+        else:
+            print(f"No data for {ticker}, trying again in 1 minute.")
         await asyncio.sleep(60)
     
     if not accumulated_data.empty:
