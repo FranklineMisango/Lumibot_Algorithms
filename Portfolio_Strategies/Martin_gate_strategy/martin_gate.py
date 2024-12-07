@@ -1,21 +1,27 @@
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.stream import Stream
 import datetime
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-ALPACA_API_KEY = "REPLACE_ME"
-ALPACA_SECRET_KEY = "REPLACE_ME"
 
+ALPACA_API_KEY = os.getenv("APCA_API_KEY_ID")
+ALPACA_SECRET_KEY = os.getenv("APCA_API_SECRET_KEY")
 
 # Utility to truncate a float value to a certain number of decimal places.
 # We'll use this to see if a "penny level" was crossed when we compare prices.
 # This is necessary because a price can change by 1/100th of a penny, but we
 # can only trade at full-penny increments.
+
+
 def truncate(val, decimal_places):
     return int(val * 10**decimal_places) / 10**decimal_places
 
 
 # The MartingaleTrader bets that streaks of increases or decreases in a stock's
 # price are likely to break, and increases its bet each time it is wrong.
+
 class MartingaleTrader(object):
     def __init__(self):
         # API authentication keys can be taken from the Alpaca dashboard.
@@ -26,6 +32,8 @@ class MartingaleTrader(object):
         self.data_url = 'https://data.alpaca.markets'
 
         # The symbol we will be trading
+        # TODO - add more stocks and test the functionality
+        
         self.symbol = 'SPY'
 
         # How many seconds we will wait in between updating the streak values
