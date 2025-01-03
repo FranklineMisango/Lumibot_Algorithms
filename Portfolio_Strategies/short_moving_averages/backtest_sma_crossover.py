@@ -192,4 +192,4 @@ def norm_sma_crossover(ticker, years, start_date, end_date, portfolio):
 if __name__ == '__main__':
     prompt = input("Do you want to run the SMA crossover strategy on a stock? (y/n): ")
     if prompt == 'y':
-        norm_sma_crossover('AAPL', years= 5 , start_date= dt.datetime(2020, 1, 1), end_date= dt.datetime(2024, 1, 1), portfolio= 10000)
+        norm_sma_crossover('TSLA', years= 5 , start_date= dt.datetime(2020, 1, 1), end_date= dt.datetime(2024, 1, 1), portfolio= 10000) #works
