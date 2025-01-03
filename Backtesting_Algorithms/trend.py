@@ -117,7 +117,7 @@ if __name__ == "__main__":
         bot.run_all()
     else:
         start = datetime(2024, 8, 1)
-        end = datetime(2024, 8, 31)
+        end = datetime(2025, 1, 1)
         Trend.backtest(
             YahooDataBacktesting,
             start,
