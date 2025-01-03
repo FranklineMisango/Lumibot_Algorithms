@@ -44,8 +44,6 @@ class SwingHigh(Strategy):
             "KR": 50,
             "LILA": 70,
             "LILAK": 80,
-            "LSXMA": 90,
-            "LSXMK": 100,
             "FWONK": 130,
             "LPX": 140,
             "MA": 150,
@@ -112,7 +110,7 @@ if __name__ == "__main__":
         bot.run_all()
     else:
         start = datetime(2024, 8, 1)
-        end = datetime(2024, 8, 5)
+        end = datetime(2025, 1, 1)
         SwingHigh.backtest(
             YahooDataBacktesting,
             start,
