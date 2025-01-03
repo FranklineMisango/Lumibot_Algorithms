@@ -64,19 +64,6 @@ class LongShort:
 
         #TODO - Add more stocks to the stockUniverse with diverse leverage
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
-        '''Test with more liquidity stocks
-        stockUniverse = ['AAPL', 'MSFT', 'NVDA', 'GOOG', 'META', 'ADBE', 'CSCO', 'CRM', 'INTC', 'ORCL', 
-                 'JPM', 'BAC', 'GS', 'MS', 'C', 'WFC', 'AXP', 'BLK', 'SCHW', 'SPGI', 'PGNY', 'XCH', 'DRMA',
-                 'JNJ', 'PFE', 'UNH', 'ABT', 'MRK', 'AMGN', 'TMO', 'GILD', 'CVS', 'MDT', 'VVOS', 'GLXG', 'SCNI', 'FDMT', 'SGLY', 
-                 'OMEX', 'INBS', 'KSPI', 'HCWC', 'TRIB', 'FUFU', 'MNY', 'MNY', 'NEON', 'BBLG', 'FANH', 'SNOA', 'YIBO',
-                 'AMZN', 'TSLA', 'NKE', 'MCD', 'HD', 'LOW', 'DIS', 'SBUX', 'NFLX', 'PCLN', 'T', 'VZ', 'CMCSA', 'ATVI', 'TTWO', 'SNAP',
-                 'BA', 'CAT', 'HON', 'GE', 'LMT', 'UPS', 'RTX', 'MMM', 'DE', 'NOC', 'EWTX', 'MBLY', 'AUR', 'MSTR', 'XPEV', 'BEKE', 'TAL',
-                 'NIO', 'W', 'UEC', 'JD', 'COHR', 'PYPL', 'AMD', 'AMAT', 'CVNA', 'CRM', 'TSM', 'C', 'ABNB', 'VRT', 'LUMN',
-                 'PG', 'KO', 'PEP', 'WMT', 'COST', 'CAG', 'MDLZ', 'CL', 'SJM', 'GIS',
-                 'XOM', 'CVX', 'BP', 'SLB', 'EOG', 'OXY', 'PXD', 'VLO', 'KMI', 'PSX',
-                 'NEE', 'DUK', 'SO', 'D', 'EXC', 'SRE', 'AEP', 'ED', 'PCG', 'XEL',
-                 'AMT', 'PLD', 'SPG', 'EQIX', 'O', 'VTR', 'DRE', 'AVB', 'PSA', 'WPC']
-        '''
 
         stockUniverse = [
                 # Technology
@@ -329,7 +316,7 @@ class LongShort:
         if total_cash_for_trading < (equity * 0.45 + equity * 0.55):
             total_cash_for_trading += min(buying_power, (equity * 0.45 + equity * 0.55) - equity)
 
-        # Long/short ratio of 45/55
+        # Long/short ratio of 45/55 - short 40%
         self.shortAmount = total_cash_for_trading * 0.45
         self.longAmount = total_cash_for_trading - self.shortAmount
         respGetTPLong = []
