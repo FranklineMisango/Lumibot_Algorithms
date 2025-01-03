@@ -4,6 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 def gld_signal(ticker_input, start_date, end_date):
+    
     gld = pd.DataFrame(yf.download(ticker_input, start_date)['Close'])
     gld['9-day'] = gld['Close'].rolling(9).mean()
     gld['21-day'] = gld['Close'].rolling(21).mean()
