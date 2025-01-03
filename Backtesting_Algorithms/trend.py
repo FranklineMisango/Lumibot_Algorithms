@@ -69,8 +69,6 @@ class Trend(Strategy):
             "KR": 50,
             "LILA": 70,
             "LILAK": 80,
-            "LSXMA": 90,
-            "LSXMK": 100,
             "FWONK": 130,
             "LPX": 140,
             "MA": 150,
