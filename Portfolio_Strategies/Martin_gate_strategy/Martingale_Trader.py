@@ -24,15 +24,13 @@ def truncate(val, decimal_places):
 
 class MartingaleTrader(object):
     def __init__(self):
-        # API authentication keys can be taken from the Alpaca dashboard.
-        # https://app.alpaca.markets/paper/dashboard/overview
+
         self.key_id = ALPACA_API_KEY
         self.secret_key = ALPACA_SECRET_KEY
         self.base_url = 'https://paper-api.alpaca.markets'
         self.data_url = 'https://data.alpaca.markets'
 
         # The symbol we will be trading
-        
         self.symbol = 'NVDA'
 
         # How many seconds we will wait in between updating the streak values
