@@ -4,14 +4,15 @@ from datetime import datetime, timedelta
 import backtrader as bt
 import pandas as pd
 import matplotlib.pyplot as plt
-import yfinance as yf  # Added yfinance library
+import yfinance as yf  
 from dotenv import load_dotenv
-
-# Load environment variables
+from lumibot.brokers import Alpaca
+from lumibot.backtesting import YahooDataBacktesting
+from lumibot.strategies.strategy import Strategy
 load_dotenv()
 ALPACA_API_KEY = os.environ.get('API_KEY_ALPACA')
 ALPACA_SECRET_KEY = os.environ.get('SECRET_KEY_ALPACA')
-ALPACA_PAPER = True  # Set to False for live trading
+ALPACA_PAPER = True  
 
 class DiversifiedLeverageStrategy(bt.Strategy):
     """
@@ -195,11 +196,8 @@ def run_live():
         paper=ALPACA_PAPER
     )
     
-    # Set the broker
     broker = store.getbroker()
     cerebro.setbroker(broker)
-    
-    # Add the data feeds for each symbol
     symbols = ["TQQQ", "UPRO", "UDOW", "TMF", "UGL", "DIG"]
     
     for symbol in symbols:
@@ -211,13 +209,12 @@ def run_live():
         )
         cerebro.adddata(data, name=symbol)
     
-    # Run the strategy
     print('Starting Live Trading...')
     print('Initial Portfolio Value: ${:.2f}'.format(cerebro.broker.getvalue()))
     cerebro.run()
 
 if __name__ == "__main__":
-    is_live = False  # Set to True for live trading
+    is_live = False 
     
     if is_live:
         print("Running in LIVE mode with Alpaca")
