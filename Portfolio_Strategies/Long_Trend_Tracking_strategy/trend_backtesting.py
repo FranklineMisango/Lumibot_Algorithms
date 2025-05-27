@@ -13,24 +13,44 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 load_dotenv()
 
 class Config:
-    # 🆕 Added transaction cost parameters
     TRANSACTION_COST_PER_SHARE = 0.005  # $0.005 per share
     SLIPPAGE_RATE = 0.0001  # 0.01% of order value
     FMP_API_KEY = os.getenv('FMP_API_KEY')  # Financial Modeling Prep API key
+    ATR_PERIOD = 14  # Period for ATR calculation
+    RISK_PER_TRADE = 0.01  # 1% risk per trade
+    ADX_THRESHOLD = 20  # Minimum ADX value for trend following
+    SECTOR_LIMIT = 0.25  # Maximum sector exposure (25%)
+    TRAILING_STOP_MULTIPLIER = 0.02  # 2% trailing stop
 
 class BacktestTrend(Strategy):
     def initialize(self):
         self.transaction_costs = 0.0
         self.sleeptime = "1D"
-        self.sectors = self.load_sector_data()
+        self.symbols = {"AAPL": "Technology", "MSFT": "Technology", "XLK": "Technology ETF", 
+                      "XLF": "Financial ETF", "XLE": "Energy ETF"}
+        self.sector_map = {}
         self.adx_window = 14
-        self.min_liquidity = 1e6  # $1M daily volume
+        self.min_liquidity = 1e6  
     
     def get_required_data(self):
-        symbols = list(self.symbols.keys()) + ["SPY"]
-        return self.get_historical_prices(symbols, 50, "day")
+        """Fetch historical data for each symbol individually and combine results"""
+        if not hasattr(self, "symbols") or not self.symbols:
+            self.symbols = {"SPY": "Index"}  # Default to SPY if no symbols provided
+            
+        all_symbols = list(self.symbols.keys())
+        if "SPY" not in all_symbols:
+            all_symbols.append("SPY")
+            
+        batch_data = {}
+        for symbol in all_symbols:
+            try:
+                data = self.get_historical_prices(symbol, 50, "day")
+                batch_data[symbol] = data
+            except Exception as e:
+                self.logger.error(f"Failed to get data for {symbol}: {str(e)}")
+                
+        return batch_data
     
-    # 🆕 Technical indicator calculations
     def calculate_ATR(self, df):
         high_low = df['high'] - df['low']
         high_close = np.abs(df['high'] - df['close'].shift())
@@ -39,8 +59,16 @@ class BacktestTrend(Strategy):
         return tr.rolling(Config.ATR_PERIOD).mean()
     
     def is_tradable(self, symbol):
-        volume = self.get_historical_prices(symbol, 1, "day").df['volume'][0]
-        return volume * self.get_last_price(symbol) > self.min_liquidity
+        try:
+            history = self.get_historical_prices(symbol, 1, "day")
+            if history is None or history.df.empty:
+                return False
+            volume = history.df['volume'].iloc[0]
+            last_price = self.get_last_price(symbol)
+            return volume * last_price > self.min_liquidity
+        except Exception as e:
+            self.logger.error(f"Error checking if {symbol} is tradable: {str(e)}")
+            return False
     
     def calculate_position_size(self, atr):
         risk_amount = self.portfolio_value * Config.RISK_PER_TRADE
@@ -81,12 +109,12 @@ class BacktestTrend(Strategy):
             data = response.json()
             return data[0].get('sector', 'Unknown')
         except Exception as e:
-            self.logger.error(f"Sector data fetch failed: {e}")
+            self.logger.error(f"Sector data fetch failed for {symbol}: {e}")
             return 'Unknown'
 
     def calculate_sector_exposure(self):
         sector_values = {}
-        for symbol in self.symbols:
+        for symbol in self.get_positions_symbols():
             if symbol not in self.sector_map:
                 self.sector_map[symbol] = self.fetch_sector_data(symbol)
                 
@@ -127,49 +155,65 @@ class BacktestTrend(Strategy):
 
     
     def on_trading_iteration(self):
-        # Batch data retrieval
-        batch_data = self.get_required_data()
-        spy_data = batch_data["SPY"].df
-        market_trend = self.calculate_ADX(spy_data)
-        
-        # 🆕 Market regime filter
-        if market_trend[-1] < Config.ADX_THRESHOLD:
-            return  # Don't trade in range-bound markets
-            
-        # 🆕 Sector exposure tracking
-        sector_allocation = self.calculate_sector_exposure()
-        
-        for symbol in self.symbols:
-            # 🆕 Liquidity check
-            if not self.is_tradable(symbol):
-                continue
+        try:
+            # Batch data retrieval
+            batch_data = self.get_required_data()
+            if not batch_data or "SPY" not in batch_data:
+                self.logger.error("SPY data not available - skipping trading iteration")
+                return
                 
-            # Asset-specific signals
-            df = batch_data[symbol].df
-            df['9_ema'] = df['close'].ewm(span=9).mean()
-            df['21_ema'] = df['close'].ewm(span=21).mean()
+            spy_data = batch_data["SPY"].df
+            market_trend = self.calculate_ADX(spy_data)
             
-            # 🆕 Crossover confirmation
-            current_crossover = (df['9_ema'][-1] > df['21_ema'][-1]) 
-            prev_crossover = (df['9_ema'][-2] < df['21_ema'][-2])
-            signal = "BUY" if current_crossover and prev_crossover else None
-            
-            # 🆕 Dynamic position sizing
-            atr = self.calculate_ATR(df).iloc[-1]
-            position_size = self.calculate_position_size(atr)
-            
-            # 🆕 Sector allocation check
-            if sector_allocation.get(self.sectors[symbol], 0) >= Config.SECTOR_LIMIT:
-                continue
+            if market_trend.adx < Config.ADX_THRESHOLD:
+                self.logger.info(f"Market ADX below threshold: {market_trend.adx} - not trading")
+                return  # Don't trade in range-bound markets
                 
-            # Order execution
-            self.execute_trade(symbol, signal, position_size)
+            sector_allocation = self.calculate_sector_exposure()
+            
+            for symbol in list(self.symbols.keys()):
+                if symbol not in batch_data:
+                    self.logger.warning(f"No data available for {symbol} - skipping")
+                    continue
+                    
+                # Fetch sector data if not already cached
+                if symbol not in self.sector_map:
+                    self.sector_map[symbol] = self.fetch_sector_data(symbol)
+                    
+                if not self.is_tradable(symbol):
+                    self.logger.info(f"{symbol} not tradable - insufficient liquidity")
+                    continue
+                    
+                # Asset-specific signals
+                df = batch_data[symbol].df
+                df['9_ema'] = df['close'].ewm(span=9).mean()
+                df['21_ema'] = df['close'].ewm(span=21).mean()
+                
+                if len(df) < 2:
+                    self.logger.warning(f"Insufficient data for {symbol} - need at least 2 days")
+                    continue
+                
+                current_crossover = (df['9_ema'].iloc[-1] > df['21_ema'].iloc[-1]) 
+                prev_crossover = (df['9_ema'].iloc[-2] < df['21_ema'].iloc[-2])
+                signal = "BUY" if current_crossover and prev_crossover else None
+                
+                atr = self.calculate_ATR(df).iloc[-1]
+                position_size = self.calculate_position_size(atr)
+                
+                sector = self.sector_map[symbol]
+                if sector_allocation.get(sector, 0) >= Config.SECTOR_LIMIT:
+                    self.logger.info(f"Sector {sector} exposure limit reached - skipping {symbol}")
+                    continue
+                    
+                self.execute_trade(symbol, signal, position_size)
+        except Exception as e:
+            self.logger.error(f"Error in trading iteration: {str(e)}")
+            # Continue operation despite errors
     
     def execute_trade(self, symbol, signal, quantity):
         position = self.get_position(symbol)
         
         if signal == "BUY":
-            # 🆕 Phased order entry
             for i in range(3):
                 try:
                     order = self.create_order(
@@ -184,7 +228,6 @@ class BacktestTrend(Strategy):
                     self.logger.error(f"Order failed: {e}")
                     
         elif position and not signal:
-            # 🆕 Trailing stop exit
             order = self.create_order(
                 symbol=symbol,
                 quantity=position.quantity,
@@ -204,14 +247,9 @@ if __name__ == "__main__":
     start = datetime(2024, 8, 1)
     end = datetime(2025, 1, 1)
     
-    EnhancedTrend.backtest(
+    BacktestTrend.backtest(
         YahooDataBacktesting,
         start,
         end,
         benchmark_asset="SPY",
-        backtesting_parameters={
-            "slippage": 0.001,  # 0.1% slippage
-            "transaction_cost": 0.0005,  # $0.005 per share
-            "max_iters": 1000  # Monte Carlo simulation limit
-        }
     )
