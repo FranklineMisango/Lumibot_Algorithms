@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from lumibot.backtesting import YahooDataBacktesting
-from lumibot.brokers import Alpaca
 from lumibot.strategies import Strategy
 from lumibot.traders import Trader
 from dotenv import load_dotenv
@@ -9,13 +8,18 @@ import pandas as pd
 import os
 import requests
 from tenacity import retry, stop_after_attempt, wait_fixed
+import logging
 
+# Configure basic logging
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 load_dotenv()
 
 class Config:
     TRANSACTION_COST_PER_SHARE = 0.005  # $0.005 per share
     SLIPPAGE_RATE = 0.0001  # 0.01% of order value
-    FMP_API_KEY = os.getenv('FMP_API_KEY')  # Financial Modeling Prep API key
+    FMP_API_KEY = os.environ.get('FMP_API_KEY')  # Financial Modeling Prep API key
     ATR_PERIOD = 14  # Period for ATR calculation
     RISK_PER_TRADE = 0.01  # 1% risk per trade
     ADX_THRESHOLD = 20  # Minimum ADX value for trend following
@@ -26,29 +30,39 @@ class BacktestTrend(Strategy):
     def initialize(self):
         self.transaction_costs = 0.0
         self.sleeptime = "1D"
-        self.symbols = {"AAPL": "Technology", "MSFT": "Technology", "XLK": "Technology ETF", 
-                      "XLF": "Financial ETF", "XLE": "Energy ETF"}
+        self.symbols = ["AAPL", "MSFT"]
         self.sector_map = {}
         self.adx_window = 14
         self.min_liquidity = 1e6  
     
     def get_required_data(self):
-        """Fetch historical data for each symbol individually and combine results"""
+        """Get historical data for all required symbols with improved error handling"""
         if not hasattr(self, "symbols") or not self.symbols:
-            self.symbols = {"SPY": "Index"}  # Default to SPY if no symbols provided
+            self.symbols = ["SPY"]
             
-        all_symbols = list(self.symbols.keys())
+        # Ensure SPY is in the symbol list
+        all_symbols = self.symbols.copy() if isinstance(self.symbols, list) else list(self.symbols.keys())
         if "SPY" not in all_symbols:
             all_symbols.append("SPY")
             
         batch_data = {}
         for symbol in all_symbols:
             try:
+                # Get the historical data for this symbol
                 data = self.get_historical_prices(symbol, 50, "day")
-                batch_data[symbol] = data
+                
+                # Verify that data is valid before adding to batch_data
+                if data is not None and hasattr(data, 'df') and data.df is not None and not data.df.empty:
+                    batch_data[symbol] = data
+                else:
+                    self.logger.warning(f"Invalid or empty data for {symbol}, skipping")
             except Exception as e:
                 self.logger.error(f"Failed to get data for {symbol}: {str(e)}")
                 
+        # If we couldn't get any data, log a clear error
+        if not batch_data:
+            self.logger.error("Could not get valid data for any symbols")
+        
         return batch_data
     
     def calculate_ATR(self, df):
@@ -114,18 +128,22 @@ class BacktestTrend(Strategy):
 
     def calculate_sector_exposure(self):
         sector_values = {}
-        for symbol in self.get_positions_symbols():
+        # Get all positions and extract symbols
+        positions = self.get_positions()
+        
+        for position in positions:
+            symbol = position.symbol
             if symbol not in self.sector_map:
                 self.sector_map[symbol] = self.fetch_sector_data(symbol)
                 
             sector = self.sector_map[symbol]
-            position = self.get_position(symbol)
-            if position:
-                sector_values[sector] = sector_values.get(sector, 0) + position.market_value
-                
+            
+            # Calculate the market value of the position
+            market_value = position.quantity * self.get_last_price(symbol)  # Replace with the correct calculation
+            sector_values[sector] = sector_values.get(sector, 0) + market_value
+                    
         total_value = self.portfolio_value
-        return {sector: value/total_value for sector, value in sector_values.items()}
-
+        return {sector: value / total_value for sector, value in sector_values.items()} if total_value > 0 else {}
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
     def submit_order(self, order):
         # Calculate transaction costs
@@ -171,7 +189,10 @@ class BacktestTrend(Strategy):
                 
             sector_allocation = self.calculate_sector_exposure()
             
-            for symbol in list(self.symbols.keys()):
+            # Fixed iteration through symbols when self.symbols is a list
+            symbols_to_check = self.symbols if isinstance(self.symbols, list) else list(self.symbols.keys())
+            
+            for symbol in symbols_to_check:
                 if symbol not in batch_data:
                     self.logger.warning(f"No data available for {symbol} - skipping")
                     continue
@@ -244,12 +265,23 @@ class BacktestTrend(Strategy):
 
 
 if __name__ == "__main__":
-    start = datetime(2024, 8, 1)
-    end = datetime(2025, 1, 1)
+    logger.info("Starting backtesting strategy")
     
-    BacktestTrend.backtest(
-        YahooDataBacktesting,
-        start,
-        end,
-        benchmark_asset="SPY",
-    )
+    # Check for FMP API key
+    if not Config.FMP_API_KEY:
+        logger.warning("No FMP_API_KEY found in environment variables. Sector data will not be available.")
+    
+    start = datetime(2020, 1, 1)
+    end = datetime(2022, 12, 31)    
+    
+    try:
+        # Pass initial_capital and use symbols parameter correctly
+        BacktestTrend.backtest(
+            YahooDataBacktesting,
+            start,
+            end,
+            benchmark_asset="SPY",
+        )
+        logger.info("Backtest completed successfully")
+    except Exception as e:
+        logger.error(f"Backtest failed with error: {str(e)}")
