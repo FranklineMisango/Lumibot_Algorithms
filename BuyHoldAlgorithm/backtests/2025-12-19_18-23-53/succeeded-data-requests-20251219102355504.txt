@@ -1,0 +1,4 @@
+/equity/usa/daily/aapl.zip
+/equity/usa/daily/bac.zip
+/equity/usa/daily/spy.zip
+/equity/usa/hour/spy.zip

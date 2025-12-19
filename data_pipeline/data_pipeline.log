@@ -1,0 +1,198 @@
+2025-12-19 18:03:51,868 - utils - INFO - Starting data download from 2024-01-01 to 2024-12-31
+2025-12-19 18:03:51,868 - utils - INFO - Resolution: daily
+2025-12-19 18:03:51,868 - utils - INFO - Starting Yahoo Finance data download...
+2025-12-19 18:03:51,868 - utils - INFO - Starting Yahoo Finance equity download for 10 symbols
+2025-12-19 18:03:54,301 - utils - INFO - Successfully downloaded 251 bars for AAPL
+2025-12-19 18:03:54,306 - utils - INFO - Saved 251 bars for AAPL
+2025-12-19 18:03:55,230 - utils - INFO - Successfully downloaded 251 bars for GOOGL
+2025-12-19 18:03:55,232 - utils - INFO - Saved 251 bars for GOOGL
+2025-12-19 18:03:56,095 - utils - INFO - Successfully downloaded 251 bars for MSFT
+2025-12-19 18:03:56,100 - utils - INFO - Saved 251 bars for MSFT
+2025-12-19 18:03:56,915 - utils - INFO - Successfully downloaded 251 bars for TSLA
+2025-12-19 18:03:56,918 - utils - INFO - Saved 251 bars for TSLA
+2025-12-19 18:03:57,807 - utils - INFO - Successfully downloaded 251 bars for NVDA
+2025-12-19 18:03:57,810 - utils - INFO - Saved 251 bars for NVDA
+2025-12-19 18:03:58,899 - utils - INFO - Successfully downloaded 251 bars for AMZN
+2025-12-19 18:03:58,901 - utils - INFO - Saved 251 bars for AMZN
+2025-12-19 18:03:59,700 - utils - INFO - Successfully downloaded 251 bars for META
+2025-12-19 18:03:59,705 - utils - INFO - Saved 251 bars for META
+2025-12-19 18:04:00,519 - utils - INFO - Successfully downloaded 251 bars for NFLX
+2025-12-19 18:04:00,522 - utils - INFO - Saved 251 bars for NFLX
+2025-12-19 18:04:01,401 - utils - INFO - Successfully downloaded 251 bars for SPY
+2025-12-19 18:04:01,403 - utils - INFO - Saved 251 bars for SPY
+2025-12-19 18:04:02,298 - utils - INFO - Successfully downloaded 251 bars for QQQ
+2025-12-19 18:04:02,302 - utils - INFO - Saved 251 bars for QQQ
+2025-12-19 18:04:02,303 - utils - INFO - Starting Yahoo Finance etf download for 38 symbols
+2025-12-19 18:04:02,845 - utils - INFO - Successfully downloaded 251 bars for AAPL
+2025-12-19 18:04:02,848 - utils - INFO - Saved 251 bars for AAPL
+2025-12-19 18:04:03,971 - utils - INFO - Successfully downloaded 251 bars for BAC
+2025-12-19 18:04:03,976 - utils - INFO - Saved 251 bars for BAC
+2025-12-19 18:04:05,053 - utils - INFO - Successfully downloaded 251 bars for AXP
+2025-12-19 18:04:05,059 - utils - INFO - Saved 251 bars for AXP
+2025-12-19 18:04:06,242 - utils - INFO - Successfully downloaded 251 bars for KO
+2025-12-19 18:04:06,246 - utils - INFO - Saved 251 bars for KO
+2025-12-19 18:04:07,402 - utils - INFO - Successfully downloaded 251 bars for CVX
+2025-12-19 18:04:07,405 - utils - INFO - Saved 251 bars for CVX
+2025-12-19 18:04:08,439 - utils - INFO - Successfully downloaded 251 bars for OXY
+2025-12-19 18:04:08,443 - utils - INFO - Saved 251 bars for OXY
+2025-12-19 18:04:09,434 - utils - INFO - Successfully downloaded 251 bars for KHC
+2025-12-19 18:04:09,437 - utils - INFO - Saved 251 bars for KHC
+2025-12-19 18:04:10,466 - utils - INFO - Successfully downloaded 251 bars for MCO
+2025-12-19 18:04:10,469 - utils - INFO - Saved 251 bars for MCO
+2025-12-19 18:04:11,367 - utils - INFO - Successfully downloaded 251 bars for CB
+2025-12-19 18:04:11,372 - utils - INFO - Saved 251 bars for CB
+2025-12-19 18:04:12,334 - utils - INFO - Successfully downloaded 251 bars for DVA
+2025-12-19 18:04:12,338 - utils - INFO - Saved 251 bars for DVA
+2025-12-19 18:04:13,356 - utils - INFO - Successfully downloaded 251 bars for C
+2025-12-19 18:04:13,361 - utils - INFO - Saved 251 bars for C
+2025-12-19 18:04:14,569 - utils - INFO - Successfully downloaded 251 bars for KR
+2025-12-19 18:04:14,576 - utils - INFO - Saved 251 bars for KR
+2025-12-19 18:04:15,542 - utils - INFO - Successfully downloaded 251 bars for SIRI
+2025-12-19 18:04:15,546 - utils - INFO - Saved 251 bars for SIRI
+2025-12-19 18:04:16,542 - utils - INFO - Successfully downloaded 251 bars for V
+2025-12-19 18:04:16,546 - utils - INFO - Saved 251 bars for V
+2025-12-19 18:04:17,532 - utils - INFO - Successfully downloaded 251 bars for VRSN
+2025-12-19 18:04:17,536 - utils - INFO - Saved 251 bars for VRSN
+2025-12-19 18:04:18,396 - utils - INFO - Successfully downloaded 251 bars for MA
+2025-12-19 18:04:18,399 - utils - INFO - Saved 251 bars for MA
+2025-12-19 18:04:18,924 - utils - INFO - Successfully downloaded 251 bars for AMZN
+2025-12-19 18:04:18,927 - utils - INFO - Saved 251 bars for AMZN
+2025-12-19 18:04:19,752 - utils - INFO - Successfully downloaded 251 bars for NU
+2025-12-19 18:04:19,757 - utils - INFO - Saved 251 bars for NU
+2025-12-19 18:04:20,705 - utils - INFO - Successfully downloaded 251 bars for AON
+2025-12-19 18:04:20,709 - utils - INFO - Saved 251 bars for AON
+2025-12-19 18:04:21,635 - utils - INFO - Successfully downloaded 251 bars for COF
+2025-12-19 18:04:21,640 - utils - INFO - Saved 251 bars for COF
+2025-12-19 18:04:22,570 - utils - INFO - Successfully downloaded 251 bars for CHTR
+2025-12-19 18:04:22,575 - utils - INFO - Saved 251 bars for CHTR
+2025-12-19 18:04:23,398 - utils - INFO - Successfully downloaded 251 bars for ALLY
+2025-12-19 18:04:23,403 - utils - INFO - Saved 251 bars for ALLY
+2025-12-19 18:04:24,208 - utils - INFO - Successfully downloaded 251 bars for TMUS
+2025-12-19 18:04:24,210 - utils - INFO - Saved 251 bars for TMUS
+2025-12-19 18:04:25,027 - utils - INFO - Successfully downloaded 251 bars for FWONK
+2025-12-19 18:04:25,032 - utils - INFO - Saved 251 bars for FWONK
+2025-12-19 18:04:25,970 - utils - INFO - Successfully downloaded 251 bars for LPX
+2025-12-19 18:04:25,972 - utils - INFO - Saved 251 bars for LPX
+2025-12-19 18:04:26,832 - utils - INFO - Successfully downloaded 251 bars for LLYVK
+2025-12-19 18:04:26,838 - utils - INFO - Saved 251 bars for LLYVK
+2025-12-19 18:04:27,632 - utils - INFO - Successfully downloaded 251 bars for FND
+2025-12-19 18:04:27,636 - utils - INFO - Saved 251 bars for FND
+2025-12-19 18:04:28,473 - utils - INFO - Successfully downloaded 251 bars for ULTA
+2025-12-19 18:04:28,476 - utils - INFO - Saved 251 bars for ULTA
+2025-12-19 18:04:30,737 - yfinance - ERROR - $HEI.A: possibly delisted; no timezone found
+2025-12-19 18:04:30,738 - utils - WARNING - No data found for HEI.A on attempt 1
+2025-12-19 18:04:30,738 - utils - INFO - Retry attempt 1 for HEI.A after rate limit
+2025-12-19 18:04:33,006 - yfinance - ERROR - $HEI.A: possibly delisted; no timezone found
+2025-12-19 18:04:33,008 - utils - WARNING - No data found for HEI.A on attempt 2
+2025-12-19 18:04:33,008 - utils - INFO - Retry attempt 2 for HEI.A after rate limit
+2025-12-19 18:04:37,014 - yfinance - ERROR - $HEI.A: possibly delisted; no timezone found
+2025-12-19 18:04:37,015 - utils - WARNING - No data found for HEI.A on attempt 3
+2025-12-19 18:04:37,921 - utils - INFO - Successfully downloaded 251 bars for LLYVA
+2025-12-19 18:04:37,925 - utils - INFO - Saved 251 bars for LLYVA
+2025-12-19 18:04:39,042 - utils - INFO - Successfully downloaded 251 bars for DEO
+2025-12-19 18:04:39,046 - utils - INFO - Saved 251 bars for DEO
+2025-12-19 18:04:39,304 - yfinance - ERROR - $LEN.B: possibly delisted; no price data found  (1d 2024-01-01 -> 2024-12-31)
+2025-12-19 18:04:39,305 - utils - WARNING - No data found for LEN.B on attempt 1
+2025-12-19 18:04:39,305 - utils - INFO - Retry attempt 1 for LEN.B after rate limit
+2025-12-19 18:04:41,309 - yfinance - ERROR - $LEN.B: possibly delisted; no price data found  (1d 2024-01-01 -> 2024-12-31)
+2025-12-19 18:04:41,310 - utils - WARNING - No data found for LEN.B on attempt 2
+2025-12-19 18:04:41,310 - utils - INFO - Retry attempt 2 for LEN.B after rate limit
+2025-12-19 18:04:45,315 - yfinance - ERROR - $LEN.B: possibly delisted; no price data found  (1d 2024-01-01 -> 2024-12-31)
+2025-12-19 18:04:45,315 - utils - WARNING - No data found for LEN.B on attempt 3
+2025-12-19 18:04:46,195 - utils - INFO - Successfully downloaded 251 bars for JEF
+2025-12-19 18:04:46,197 - utils - INFO - Saved 251 bars for JEF
+2025-12-19 18:04:46,988 - utils - INFO - Successfully downloaded 251 bars for LILA
+2025-12-19 18:04:46,992 - utils - INFO - Saved 251 bars for LILA
+2025-12-19 18:04:47,960 - utils - INFO - Successfully downloaded 251 bars for LILAK
+2025-12-19 18:04:47,962 - utils - INFO - Saved 251 bars for LILAK
+2025-12-19 18:04:48,894 - utils - INFO - Successfully downloaded 251 bars for BATRK
+2025-12-19 18:04:48,897 - utils - INFO - Saved 251 bars for BATRK
+2025-12-19 18:04:49,904 - utils - INFO - Successfully downloaded 251 bars for VOO
+2025-12-19 18:04:49,907 - utils - INFO - Saved 251 bars for VOO
+2025-12-19 18:04:50,661 - utils - INFO - Successfully downloaded 251 bars for SPY
+2025-12-19 18:04:50,665 - utils - INFO - Saved 251 bars for SPY
+2025-12-19 18:04:50,666 - utils - INFO - Starting Yahoo Finance indices download for 10 symbols
+2025-12-19 18:04:51,452 - utils - INFO - Successfully downloaded 251 bars for ^GSPC
+2025-12-19 18:04:51,455 - utils - INFO - Saved 251 bars for ^GSPC
+2025-12-19 18:04:52,265 - utils - INFO - Successfully downloaded 251 bars for ^DJI
+2025-12-19 18:04:52,270 - utils - INFO - Saved 251 bars for ^DJI
+2025-12-19 18:04:53,074 - utils - INFO - Successfully downloaded 251 bars for ^IXIC
+2025-12-19 18:04:53,079 - utils - INFO - Saved 251 bars for ^IXIC
+2025-12-19 18:04:53,960 - utils - INFO - Successfully downloaded 251 bars for ^RUT
+2025-12-19 18:04:53,965 - utils - INFO - Saved 251 bars for ^RUT
+2025-12-19 18:04:54,765 - utils - INFO - Successfully downloaded 251 bars for ^VIX
+2025-12-19 18:04:54,770 - utils - INFO - Saved 251 bars for ^VIX
+2025-12-19 18:04:55,570 - utils - INFO - Successfully downloaded 251 bars for ^TNX
+2025-12-19 18:04:55,575 - utils - INFO - Saved 251 bars for ^TNX
+2025-12-19 18:04:56,420 - utils - INFO - Successfully downloaded 251 bars for ^GSPTSE
+2025-12-19 18:04:56,424 - utils - INFO - Saved 251 bars for ^GSPTSE
+2025-12-19 18:04:57,418 - utils - INFO - Successfully downloaded 253 bars for ^FTSE
+2025-12-19 18:04:57,420 - utils - INFO - Saved 253 bars for ^FTSE
+2025-12-19 18:04:58,219 - utils - INFO - Successfully downloaded 245 bars for ^N225
+2025-12-19 18:04:58,224 - utils - INFO - Saved 245 bars for ^N225
+2025-12-19 18:04:59,007 - utils - INFO - Successfully downloaded 245 bars for ^HSI
+2025-12-19 18:04:59,010 - utils - INFO - Saved 245 bars for ^HSI
+2025-12-19 18:04:59,011 - utils - INFO - Starting Yahoo Finance forex download for 6 pairs
+2025-12-19 18:04:59,812 - utils - INFO - Successfully downloaded 261 bars for EURUSD=X
+2025-12-19 18:04:59,817 - utils - INFO - Saved 254 bars for EURUSD=X
+2025-12-19 18:05:00,640 - utils - INFO - Successfully downloaded 261 bars for GBPUSD=X
+2025-12-19 18:05:00,644 - utils - INFO - Saved 255 bars for GBPUSD=X
+2025-12-19 18:05:01,463 - utils - INFO - Successfully downloaded 261 bars for USDJPY=X
+2025-12-19 18:05:01,466 - utils - INFO - Saved 247 bars for USDJPY=X
+2025-12-19 18:05:02,298 - utils - INFO - Successfully downloaded 261 bars for USDCHF=X
+2025-12-19 18:05:02,302 - utils - INFO - Saved 253 bars for USDCHF=X
+2025-12-19 18:05:03,156 - utils - INFO - Successfully downloaded 261 bars for AUDUSD=X
+2025-12-19 18:05:03,161 - utils - INFO - Saved 250 bars for AUDUSD=X
+2025-12-19 18:05:04,019 - utils - INFO - Successfully downloaded 261 bars for USDCAD=X
+2025-12-19 18:05:04,025 - utils - INFO - Saved 255 bars for USDCAD=X
+2025-12-19 18:05:04,026 - utils - INFO - Starting Yahoo Finance crypto download for 8 symbols
+2025-12-19 18:05:04,027 - utils - WARNING - Attempt 1 failed for BTC-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:04,027 - utils - INFO - Retry attempt 1 for BTC-USD after rate limit
+2025-12-19 18:05:06,029 - utils - WARNING - Attempt 2 failed for BTC-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:06,029 - utils - INFO - Retry attempt 2 for BTC-USD after rate limit
+2025-12-19 18:05:10,034 - utils - WARNING - Attempt 3 failed for BTC-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:10,034 - utils - ERROR - All attempts failed for BTC-USD. Final error: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:10,035 - utils - WARNING - Attempt 1 failed for ETH-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:10,035 - utils - INFO - Retry attempt 1 for ETH-USD after rate limit
+2025-12-19 18:05:12,037 - utils - WARNING - Attempt 2 failed for ETH-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:12,038 - utils - INFO - Retry attempt 2 for ETH-USD after rate limit
+2025-12-19 18:05:16,042 - utils - WARNING - Attempt 3 failed for ETH-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:16,042 - utils - ERROR - All attempts failed for ETH-USD. Final error: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:16,042 - utils - WARNING - Attempt 1 failed for ADA-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:16,043 - utils - INFO - Retry attempt 1 for ADA-USD after rate limit
+2025-12-19 18:05:18,045 - utils - WARNING - Attempt 2 failed for ADA-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:18,045 - utils - INFO - Retry attempt 2 for ADA-USD after rate limit
+2025-12-19 18:05:22,049 - utils - WARNING - Attempt 3 failed for ADA-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:22,049 - utils - ERROR - All attempts failed for ADA-USD. Final error: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:22,050 - utils - WARNING - Attempt 1 failed for DOT-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:22,050 - utils - INFO - Retry attempt 1 for DOT-USD after rate limit
+2025-12-19 18:05:24,052 - utils - WARNING - Attempt 2 failed for DOT-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:24,053 - utils - INFO - Retry attempt 2 for DOT-USD after rate limit
+2025-12-19 18:05:28,057 - utils - WARNING - Attempt 3 failed for DOT-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:28,057 - utils - ERROR - All attempts failed for DOT-USD. Final error: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:28,058 - utils - WARNING - Attempt 1 failed for LINK-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:28,058 - utils - INFO - Retry attempt 1 for LINK-USD after rate limit
+2025-12-19 18:05:30,060 - utils - WARNING - Attempt 2 failed for LINK-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:30,061 - utils - INFO - Retry attempt 2 for LINK-USD after rate limit
+2025-12-19 18:05:34,065 - utils - WARNING - Attempt 3 failed for LINK-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:34,066 - utils - ERROR - All attempts failed for LINK-USD. Final error: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:34,066 - utils - WARNING - Attempt 1 failed for BNB-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:34,066 - utils - INFO - Retry attempt 1 for BNB-USD after rate limit
+2025-12-19 18:05:36,069 - utils - WARNING - Attempt 2 failed for BNB-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:36,069 - utils - INFO - Retry attempt 2 for BNB-USD after rate limit
+2025-12-19 18:05:40,073 - utils - WARNING - Attempt 3 failed for BNB-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:40,073 - utils - ERROR - All attempts failed for BNB-USD. Final error: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:40,074 - utils - WARNING - Attempt 1 failed for SOL-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:40,074 - utils - INFO - Retry attempt 1 for SOL-USD after rate limit
+2025-12-19 18:05:42,076 - utils - WARNING - Attempt 2 failed for SOL-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:42,076 - utils - INFO - Retry attempt 2 for SOL-USD after rate limit
+2025-12-19 18:05:46,081 - utils - WARNING - Attempt 3 failed for SOL-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:46,081 - utils - ERROR - All attempts failed for SOL-USD. Final error: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:46,083 - utils - WARNING - Attempt 1 failed for AVAX-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:46,086 - utils - INFO - Retry attempt 1 for AVAX-USD after rate limit
+2025-12-19 18:05:48,089 - utils - WARNING - Attempt 2 failed for AVAX-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:48,089 - utils - INFO - Retry attempt 2 for AVAX-USD after rate limit
+2025-12-19 18:05:52,093 - utils - WARNING - Attempt 3 failed for AVAX-USD: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:52,094 - utils - ERROR - All attempts failed for AVAX-USD. Final error: 'str' object has no attribute 'strftime'
+2025-12-19 18:05:52,094 - utils - INFO - Yahoo Finance download completed
+2025-12-19 18:05:52,094 - utils - INFO - Data pipeline completed successfully!

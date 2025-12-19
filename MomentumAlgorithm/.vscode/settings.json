@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "/home/misango/anaconda3/envs/research_env/bin/python3.10",
+    "python.languageServer": "Pylance"
+}

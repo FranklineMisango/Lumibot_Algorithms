@@ -1,0 +1,2 @@
+Launching analysis for 1890558503 with LEAN Engine v2.5.0.0
+Algorithm Id:(1890558503) completed in 0.41 seconds at 0k data points per second. Processing total of 1 data points.
