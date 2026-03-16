@@ -4,28 +4,28 @@
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)
 ![Contributions](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
 
-## 📖 Introduction
+## Introduction
 
 This project is implementation of high-frequency trading (HFT) bots that use various strategies, user predefined,  to identify and execute trades on various stock tickers. The bot reads historical minute data, executes the strategy, and places buy or sell orders based on programmed conditions.
 
-## 🏆 Current Achievements 
+## Current Achievements 
 
 - **Positive ROI for Buy/Hold** : Our Buy_hold strategy is currently being tested with Warren' buffets portfolio and is making around 2,000 per day which marked the first positive P & L since inception 
 
 - **Long/short executes 100,000 trades in a historic run** : Our Long/short strategy recently did 100k + Trades in a single Day run and  helped us validate its shell-life for volatile markets trade. We thank AWS powerful EC2 Servers as always
 
-## 🚀 Features
+## Features
 
 - **Some Strategy : Long Hold strategy**: Runs the HFT and determines which stocks to short/hold throghout the day after user provides them
 - **Automated Trading**: Automatically places buy and sell orders based on the strategy. Turns on at 0930 Hrs NY Time and Sleeps at 03:45 hrs NY Time. 
 - **Email Alerts**: Sends email notifications for trade executions.
 - **Order Logging**: Logs all executed orders to a CSV / Graph file for record-keeping.
 
-## 🔄 Updates and Project Goals
+## Updates and Project Goals
 
 I am currently reprogramming all strategies within the [`Backtesting Algorithms`] folder to be real-time HFT algorithms with trading bot capabalities. The user can also backtest with them . This will allow for a more modular and flexible approach to trading strategies. Users can now choose to run any algorithm manually that is labelled 'strategy' if they prefer, without relying solely on the ROC strategy. This enhancement aims to provide greater flexibility and customization for different trading needs.
 
-## 🛠️ Installation
+## Installation
 
 1. **Clone the repository**:
     ```bash
@@ -54,7 +54,7 @@ I am currently reprogramming all strategies within the [`Backtesting Algorithms`
     export ALPACA_API_SECRET_KEY =  "your_apca_secret_key"
     ```
 
-## 📈 Usage
+## Usage
 
 1. **Prepare your tick data**:
     - Ensure the program is downloading files for each ticker in the `tick_data` directory. Each file should follow the structure:
@@ -69,23 +69,23 @@ I am currently reprogramming all strategies within the [`Backtesting Algorithms`
     python main.py
     ```
 
-## 📧 Email Alerts
+## Email Alerts
 
 The bot sends email alerts for each trade execution. Ensure you have set the `EMAIL_ADDRESS` and `EMAIL_PASSWORD` environment variables correctly.
 
-## 📊 Order Logging
+## Order Logging
 
 All executed orders are logged in the `Orders.csv` file with details such as time, ticker, type, price, quantity, total, and account balance.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request.
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## 📞 Contact
+## Contact
 
 For any inquiries, please contact [franklinemisango4@gmail.com](mailto:your_email@example.com).
 
